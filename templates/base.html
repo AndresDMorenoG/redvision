@@ -7,7 +7,7 @@
           name="viewport"
           content="width=device-width, initial-scale=1, shrink-to-fit=no"
         />
-    
+        <link rel="shortcut icon" href="{{url_for('static', filename='img/icon.jpeg')}}" />
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="{{url_for('static', filename='assets/font-awesome-4.7.0/css/font-awesome.min.css')}}">
         <link rel="stylesheet" href="{{url_for('static', filename='assets/bootstrap/css/bootstrap.min.css')}}" />
@@ -15,7 +15,7 @@
         <link rel="stylesheet" href="{{url_for('static', filename='css/index.css')}}" />
         <i class="fas fa-allergies"></i>
     
-        <title>Demo</title>
+        <title>Redvision</title>
 </head>
 <body>
     <header>
@@ -23,9 +23,7 @@
           <a href="/dashboard" class="ml-5">
             <img height="70px"src="{{url_for('static', filename='img/logo.jpeg')}}" alt="logo redvision" />
           </a>
-          
-            
-          
+
           <ul class="nav navbar justify-content-end mr-5">
             <li class="nav-item pr-3 mr-5">
               <div class="input-group">
@@ -49,9 +47,9 @@
                   </div>
                   <hr>
                   <a class="dropdown-item" href="/perfil">Perfil</a>
-                  <a class="dropdown-item" href="#">Configuración</a>
+                  <a class="dropdown-item" href="/configuracion">Configuración</a>
                   <div class="dropdown-divider"></div>
-                   <button type="submit" class="btn btn-block btn-sesion mb-2">Iniciar Sesión</button>
+                   
                   <a class="dropdown-item" href="/exit">Cerrar Sesión</a>
                 </div>
               </li>

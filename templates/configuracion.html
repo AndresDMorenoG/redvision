@@ -1,0 +1,63 @@
+{% extends 'base.html'%}
+{% block body %}
+
+    <div class="container mt-5 pt-5">
+      <div class="row">
+        <div class="col-12 text-center pt-3">
+          <h1>Configuraciones</h1>
+        </div>
+        <div class="col-3">
+          <div class="row">
+            <div class="col-12 mt-5 d-flex justify-content-center align-items-center">
+                <img class="redondo" src="{{url_for('static', filename='img/perfil_defecto.jpg')}}" alt="perfil">
+            </div>
+            <div class="col-12 mt-4">
+                <div class="text-center">
+                  <button type="button" class="btn btn-ini">Cambiar</button>
+                </div>
+
+
+            </div>
+        </div>
+        </div>
+        <div class="col-6">
+          <form>
+            <div class="form-group">
+              <label for="exampleInputEmail1">Nombre</label>
+              <input type="text" class="form-control" value="Nombre Usuario" id="exampleInputEmail1" aria-describedby="emailHelp">
+            </div>
+            <div class="form-group">
+              <label for="exampleInputEmail1">Correo</label>
+              <input type="email" class="form-control" value="usuario@usuario.com" id="exampleInputEmail1" aria-describedby="emailHelp">
+            </div>
+            <div class="form-group">
+              <label for="exampleInputEmail1">Usuario</label>
+              <input type="text" class="form-control" value="@usuario" id="exampleInputEmail1" aria-describedby="emailHelp">
+            </div>
+            <div class="form-group">
+              <label for="exampleInputEmail1">fecha de nacimiento</label>
+              <input type="date" class="form-control"  id="exampleInputEmail1" aria-describedby="emailHelp">
+            </div>
+            <div class="text-center">
+              <button type="submit" class="btn  btn-ini">Actualizar</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+
+
+
+  <script
+  src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+  integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+  crossorigin="anonymous"
+></script>
+<script src="{{url_for('static', filename='assets/bootstrap/js/bootstrap.min.js')}}"></script>
+    <script src="{{url_for('static', filename='assets/kartik/js/fileinput.min.js')}}"></script>
+
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script src="{{url_for('static', filename='js/main.js')}}"></script>
+
+{% endblock %}

@@ -1,104 +1,183 @@
-from flask import Flask, request,render_template,redirect,url_for,session,flash
-
+from flask import Flask, request,render_template,redirect,url_for,session,flash,jsonify
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash,check_password_hash
-
 app = Flask(__name__)
 app.secret_key = 'dsadwe'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database/database.db'
 db = SQLAlchemy(app)
+from modelos import Usuarios,Imagenes
 
-class Usuarios(db.Model):
-    id = db.Column(db.Integer(),primary_key=True)
-    nombre = db.Column(db.String())
-    apellido = db.Column(db.String())
-    correo = db.Column(db.String())
-    contraseña = db.Column(db.String())
-    fecha = db.Column(db.String())
-class Imagenes(db.Model):
-    id = db.Column(db.Integer(),primary_key=True)
-    id_usuario = db.Column(db.Integer())
-    nombre = db.Column(db.String())
-    descripcion = db.Column(db.String())
-    
-    imagen = db.Column(db.LargeBinary)
 
-    
+#-------------------------------------------------------------------- 
+
 @app.route('/')
 def index():
+    """Funcion principal muestra index.html
+
+       Contiene los formularios de registro y login.
+    """ 
     if 'correo' in session:
         return redirect(url_for('dashboard'))
     else:
         return render_template('index.html')
 
+#-------------------------------------------------------------------- 
 
-@app.route('/crear-usuario',methods=['POST'] )
+@app.route('/crearusuario',methods=['POST'] )
 def create():
-    if request.method == 'POST':
-        if request.form['nombre'] == '':
-            print('entro')
-            flash('*Faltan rellenar Campos',category='registrar')
-        else:
-            u = Usuarios.query.filter_by(correo=request.form["correo"]).first()
-            if u != None:
-                flash('El usuario ya existe',category='registrar')
-            else:
-                contraseña_cifrada = generate_password_hash(request.form['contraseña'])
-                usuarios = Usuarios(nombre=request.form['nombre'],apellido=request.form['apellido'],correo=request.form['correo'],contraseña=contraseña_cifrada,fecha=request.form['fecha'])
-                
-                db.session.add(usuarios)
-                db.session.commit()
-                falsh = 'usuario creado'
-                return 'save'
-    return redirect(url_for('index'))
+    
+    """ Se encarga de crear la sessiones si existe el usuario.
 
-@app.route('/login',methods=['GET','POST'])
-def login():  
-    if request.method == "POST":
-        
-        usuario = Usuarios.query.filter_by(correo=request.form["correo"]).first()
-        print = request.form['contraseña']
-        if usuario and check_password_hash(usuario.contraseña,request.form['contraseña']):
-            session['id'] = usuario.id
-            session['nombre'] = usuario.nombre
-            session['correo'] = usuario.correo
-            return redirect(url_for('dashboard'))
-        else:
-            flash('Contraseña o usuario incorrecto',category='login')
-            return redirect(url_for('index'))
+        .Verfica que el correo y la contraseña coincidan,
+        si coinciden envia un mensaje de 'correcto', si no
+        envia un mensaje de error.
+    """
+    
+    
+    print("entro 2")  
+    u = Usuarios.query.filter_by(correo=request.form["correo"]).first()
+    if u != None:
+        print("entro12")
+        return jsonify({'error': 'error'})
     else:
-        return redirect(url_for('index'))
+        print("entro1")
+        contraseña_cifrada = generate_password_hash(request.form['contraseña'])
+        usuarios = Usuarios(nombre=request.form['nombre'],apellido=request.form['apellido'],correo=request.form['correo'],contraseña=contraseña_cifrada,fecha=request.form['fecha'])
+            
+        db.session.add(usuarios)
+        db.session.commit()
+        print("entro 1")        
+        return jsonify({'creado': 'usuario creado'})
+    
+#-------------------------------------------------------------------- 
 
+@app.route('/login',methods=['POST'])
+def login():  
+    """ Se encarga de crear la sessiones si existe el usuario.
+
+        .Verfica que el correo y la contraseña coincidan,
+        si coinciden envia un mensaje de 'correcto', si no
+        envia un mensaje de error.
+    """
+    
+    usuario = Usuarios.query.filter_by(correo=request.form["correo"]).first()
+    
+    if usuario and check_password_hash(usuario.contraseña,request.form['contraseña']):
+        session['id'] = usuario.id
+        session['nombre'] = usuario.nombre
+        session['correo'] = usuario.correo
+        print('usuario correcto')
+        return jsonify({'correcto': 'correcto'})
+    else:  
+        print('error')        
+        return jsonify({'error': 'error'})
+   
+#-------------------------------------------------------------------- 
 
 @app.route('/dashboard',methods=['GET','POST'])
 def dashboard():
+    """
+         muestra el dashboard cuando el usuario esta logeado
+
+    """
     if 'correo' in session:         
         return render_template('dashboard.html')
         
     else:
         return redirect(url_for('index'))
 
-@app.route('/exit')
+#-------------------------------------------------------------------- 
+
+@app.route('/exit',methods=['GET'])
 def exit():
+    """ 
+        Elimina la Session y redireciona a 'index'
+
+    """
     session.clear()
     return redirect(url_for('index'))
 
+#-------------------------------------------------------------------- 
 
 @app.route('/uploadImg',methods=['POST'] )
 def uploadImg():
-    img = request.files['imagen']
-    
-    imagenes = Imagenes(id_usuario=session['id'],nombre=request.form['nombre'],descripcion=request.form['descripcion'],imagen=img.read())
-    
-    
-    db.session.add(imagenes)
-    db.session.commit()
-    return 'save'
-    
-@app.route('/perfil')
+    """ 
+        Sube imagenes del usuario
+
+    """
+    return ''
+
+#-------------------------------------------------------------------- 
+
+@app.route('/perfil',methods=['GET'])
 def perfil():
+    """ 
+        Muestra perfil del usuario
+
+    """
+
     if 'correo' in session: 
         return render_template('perfil.html')
 
     else:
         return redirect(url_for('index'))
+
+#-------------------------------------------------------------------- 
+
+@app.route('/configuracion')
+def configuracion():
+    if 'correo' in session: 
+        return render_template('configuracion.html')
+
+    else:
+        return redirect(url_for('index'))
+
+
+#-------------------------------------------------------------------- 
+
+@app.route('/CorreoRecuperar',methods=['POST'])
+def correoRecuperacion():
+    """ 
+        Envia Correo de recuperacion
+
+    """
+    return ''
+
+#-------------------------------------------------------------------- 
+
+@app.route('/CorreoValidar',methods=['POST'])
+def correoValidacion():
+    """ 
+        Envia Correo de validacion del usuario
+
+    """
+    return ''
+
+#-------------------------------------------------------------------- 
+
+@app.route('/recuperar')
+def cambiarContraseña():
+    """ 
+        Muestra template para cambiar contraseña
+
+    """
+    return render_template('configuracion.html')
+
+#-------------------------------------------------------------------- 
+
+@app.route('/cambiocontraseña')
+def envioContraseña():
+    """ 
+        Guarda la nueva contraseña
+
+    """
+    return ''
+
+
+
+
+
+
+
+
+
