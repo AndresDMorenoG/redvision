@@ -32,6 +32,7 @@
         <ul class="nav navbar justify-content-end">
           <li class="nav-item pr-3">
             <a
+              id="idBtnIniciar"
               class="btn btn-ini boton"
               href="#"
               data-toggle="modal"
@@ -41,6 +42,7 @@
           </li>          
           <li class="nav-item">
             <a
+              id="idBtnRegistro"
               class="btn btn-light boton"
               href="#"
               data-toggle="modal"
@@ -118,7 +120,7 @@
           </div>
         </div>
     </div>
-    <!-- Modal login -->
+    
 
 
     <!-- Modal registro -->
@@ -169,10 +171,20 @@
 
                 <div class="form-group">
                   <input
+                    type="text"
+                    placeholder="Nombre de Usuario"
+                    class="form-control"
+                    id="usuarior"
+                    name="usuario"
+
+                  />
+                </div>
+
+                <div class="form-group">
+                  <input
                     type="email"
                     placeholder="Correo Electrónico"
                     class="form-control"
-                    placeholder="Correo Electrónico"
                     id="correor"
                     name="correo"
 
@@ -184,7 +196,6 @@
                     type="password"
                     placeholder="Contraseña"
                     class="form-control"
-                    placeholder=""
                     id="contraseñar"
                     name="contraseña"
                   />
@@ -194,7 +205,6 @@
                     type="date"
                     placeholder="Fecha de nacimiento"
                     class="form-control"
-                    placeholder="date"
                     id="fechar"
                     name="fecha"
                   />
@@ -210,7 +220,7 @@
           </div>
         </div>
     </div>
-    <!-- Modal registro -->
+
 
 
     <!-- Modal Aviso-->
@@ -234,7 +244,7 @@
         </div>
       </div>
     </div>
-    <!-- Modal Aviso-->
+    
 
     <!-- Modal Recuperar Contraseña -->
     <div
@@ -261,13 +271,13 @@
             </button>
           </div>
           <div class="modal-body">
-            <form>
+            <form id="formularioRecuperacion">
               <div class="form-group">
                 <input
                   type="email"
                   placeholder="Ingrese su correo electronico"
                   class="form-control"
-                  id="exampleInputEmail1"
+                  id="correoRecuperacion"
                   aria-describedby="emailHelp"
                 />
               </div>
@@ -282,7 +292,7 @@
         </div>
       </div>
     </div>
-    <!-- Modal Recuperar Contraseña -->
+   
     
   </body>
 </html>
