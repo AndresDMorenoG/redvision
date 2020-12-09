@@ -6,7 +6,7 @@
             <div class="col-6 mt-5 d-flex justify-content-center align-items-center">
                 <img class="redondo" src="{{url_for('static', filename='img/perfil_defecto.jpg')}}" alt="perfil">
                 <h3 class="ml-3">Nombre Usuario <br>
-                    <p class="h6 text-muted mb-0">@{{session['nombre']}}</p>
+                    <p class="h6 text-muted mb-0">@{{session['nombreUsuario']}}</p>
                     <p class="h6 text-muted mt-0">6 publicaciones</p>
                 </h3>
             </div>
@@ -89,7 +89,7 @@
                 <div class="header-perfil d-flex justify-content-between align-items-center">
                      <div class="usuario-perfil">
                          <img height="40px" width="40px"  style="border-radius: 50%;" src="./assets/image/perfil.jpg" alt="perfil">
-                         <span>@{{session['nombre']}}</span>
+                         <span>@{{session['nombreUsuario']}}</span>
                      </div>
                 </div>
                 <form class="row">

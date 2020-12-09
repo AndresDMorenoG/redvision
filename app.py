@@ -16,7 +16,7 @@ def index():
 
        Contiene los formularios de registro y login.
     """ 
-    if 'correo' in session:
+    if 'nombreUsuario' in session:
         return redirect(url_for('dashboard'))
     else:
         return render_template('index.html')
@@ -33,21 +33,20 @@ def create():
         envia un mensaje de error.
     """
     
-    
-    print("entro 2")  
-    u = Usuarios.query.filter_by(correo=request.form["correo"]).first()
+  
+    u = Usuarios.query.filter_by(nombreUsuario=request.form["nombreUsuario"]).first()
     if u != None:
-        print("entro12")
-        return jsonify({'error': 'error'})
+        return jsonify({'error': '1'}) 
     else:
-        print("entro1")
-        contraseña_cifrada = generate_password_hash(request.form['contraseña'])
-        usuarios = Usuarios(nombre=request.form['nombre'],apellido=request.form['apellido'],correo=request.form['correo'],contraseña=contraseña_cifrada,fecha=request.form['fecha'])
-            
-        db.session.add(usuarios)
-        db.session.commit()
-        print("entro 1")        
-        return jsonify({'creado': 'usuario creado'})
+        u = Usuarios.query.filter_by(correo=request.form["correo"]).first()
+        if u != None:
+            return jsonify({'error': '2'})
+        else:
+            contraseña_cifrada = generate_password_hash(request.form['contraseña'])
+            usuarios = Usuarios(nombre=request.form['nombre'],apellido=request.form['apellido'],correo=request.form['correo'],contraseña=contraseña_cifrada,fecha=request.form['fecha'],nombreUsuario=request.form['nombreUsuario'])
+            db.session.add(usuarios)
+            db.session.commit() 
+            return jsonify({'creado': 'usuario creado'})
     
 #-------------------------------------------------------------------- 
 
@@ -61,26 +60,30 @@ def login():
     """
     
     usuario = Usuarios.query.filter_by(correo=request.form["correo"]).first()
-    
-    if usuario and check_password_hash(usuario.contraseña,request.form['contraseña']):
-        session['id'] = usuario.id
-        session['nombre'] = usuario.nombre
-        session['correo'] = usuario.correo
-        print('usuario correcto')
-        return jsonify({'correcto': 'correcto'})
+    print(usuario.correo)
+    print(usuario != None)
+    if usuario != None:
+        if  check_password_hash(usuario.contraseña,request.form['contraseña']):
+            session['id'] = usuario.id
+            session['nombreUsuario'] = usuario.nombreUsuario
+            session['correo'] = usuario.correo
+            print('usuario correcto')
+            return jsonify({'correcto': 'correcto'})
+        else:
+            return jsonify({'error': '2'})
     else:  
         print('error')        
-        return jsonify({'error': 'error'})
+        return jsonify({'error': '1'})
    
 #-------------------------------------------------------------------- 
 
-@app.route('/dashboard',methods=['GET','POST'])
+@app.route('/dashboard/',methods=['GET','POST'])
 def dashboard():
     """
          muestra el dashboard cuando el usuario esta logeado
 
     """
-    if 'correo' in session:         
+    if 'nombreUsuario' in session:         
         return render_template('dashboard.html')
         
     else:
@@ -99,7 +102,7 @@ def exit():
 
 #-------------------------------------------------------------------- 
 
-@app.route('/uploadImg',methods=['POST'] )
+@app.route('/uploadImg/',methods=['POST'] )
 def uploadImg():
     """ 
         Sube imagenes del usuario
@@ -109,7 +112,7 @@ def uploadImg():
 
 #-------------------------------------------------------------------- 
 
-@app.route('/perfil',methods=['GET'])
+@app.route('/perfil/',methods=['GET'])
 def perfil():
     """ 
         Muestra perfil del usuario
@@ -124,7 +127,7 @@ def perfil():
 
 #-------------------------------------------------------------------- 
 
-@app.route('/configuracion')
+@app.route('/configuracion/')
 def configuracion():
     if 'correo' in session: 
         return render_template('configuracion.html')
@@ -135,7 +138,7 @@ def configuracion():
 
 #-------------------------------------------------------------------- 
 
-@app.route('/CorreoRecuperar',methods=['POST'])
+@app.route('/CorreoRecuperar/',methods=['POST'])
 def correoRecuperacion():
     """ 
         Envia Correo de recuperacion
@@ -145,7 +148,7 @@ def correoRecuperacion():
 
 #-------------------------------------------------------------------- 
 
-@app.route('/CorreoValidar',methods=['POST'])
+@app.route('/CorreoValidar/',methods=['POST'])
 def correoValidacion():
     """ 
         Envia Correo de validacion del usuario
@@ -155,7 +158,7 @@ def correoValidacion():
 
 #-------------------------------------------------------------------- 
 
-@app.route('/recuperar')
+@app.route('/recuperar/')
 def cambiarContraseña():
     """ 
         Muestra template para cambiar contraseña
@@ -165,7 +168,7 @@ def cambiarContraseña():
 
 #-------------------------------------------------------------------- 
 
-@app.route('/cambiocontraseña')
+@app.route('/cambiocontraseña/')
 def envioContraseña():
     """ 
         Guarda la nueva contraseña
