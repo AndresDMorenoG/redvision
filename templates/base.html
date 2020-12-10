@@ -32,7 +32,10 @@
                     <i class="fa fa-search" aria-hidden="true"></i>
                   </div>
                 </div>
-                <input type="text" class="form-control" placeholder="Buscar" aria-label="Input group example" aria-describedby="btnGroupAddon">
+                <form action="/dashboard" method="GET">
+                  <input name="buscar" type="text submit" class="form-control" placeholder="Buscar" aria-label="Input group example" aria-describedby="btnGroupAddon">
+                </form>
+                
               </div>
             </li>
             <li class="nav-item mr-4" style="cursor: pointer;" data-toggle="modal" data-target="#imageUpload">

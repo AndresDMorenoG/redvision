@@ -116,6 +116,7 @@
 }
 .file-caption-main {
   display: none;
+  
 }
 
 
@@ -129,3 +130,10 @@
     margin: 1.75rem auto;
   }
 }
+
+
+.img-tamaño {
+  height: 350px !important;
+      
+}
+  

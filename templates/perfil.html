@@ -5,9 +5,9 @@
         <div class="row">
             <div class="col-6 mt-5 d-flex justify-content-center align-items-center">
                 <img class="redondo" src="{{url_for('static', filename='img/perfil_defecto.jpg')}}" alt="perfil">
-                <h3 class="ml-3">Nombre Usuario <br>
-                    <p class="h6 text-muted mb-0">@{{session['nombreUsuario']}}</p>
-                    <p class="h6 text-muted mt-0">6 publicaciones</p>
+                <h3 class="ml-3">{{usuario.nombre}} {{usuario.apellido}} <br>
+                    <p class="h6 text-muted mb-0">@{{usuario.nombreUsuario}}</p>
+                    <p class="h6 text-muted mt-0">{{ npublicaciones}} publicaciones</p>
                 </h3>
             </div>
         </div>
@@ -23,110 +23,69 @@
 
       </div>
 
-<!-- Modal fotografia -->
- <div class="modal-image">
-     <!-- Modal -->
-     <div class="modal fade" id="imageModal"  data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-         <div class="modal-dialog">
-           <div class="modal-content">
-             <div class="modal-body row p-0">
-               <div class="col-7 position-relative overflow-hidden">
-                   <img class="img-grande" src="./assets/image/p7.jpg" alt="foto">
-               </div>
-               <div class="col-5 pt-3">
-                   <div class="header-perfil d-flex justify-content-between align-items-center">
+  <div class="pt-5 mt-3 container-fluid mb-5">
+    <div class="row">
+    {% for i in imagenes%}
+    <div class="col-4 mb-2">
+      <img class="img-fluid img-thumbnail img-tamaño" src="{{i.url}}" alt="foto" data-toggle="modal" data-target="#n{{i.id}}"  />
+    </div>
+    <!-- Modal fotografia -->
+    <div class="modal-image">
+      <!-- Modal -->
+      <div class="modal fade" id="n{{ i.id}}"  data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-body row p-0">
+                <div class="col-7 position-relative overflow-hidden">
+                    <img class="img-grande" src="{{i.url}}" alt="foto">
+                </div>
+                <div class="col-5 pt-3">
+                    <div class="header-perfil d-flex justify-content-between align-items-center">
                         <div class="usuario-perfil">
                             <img height="40px" width="40px"  style="border-radius: 50%;" src="{{url_for('static', filename='img/perfil_defecto.jpg')}}" alt="perfil">
                             <span>@usuario</span>
                         </div>
                         <div class="menu-hamburger">
-                            <ul class="nav navbar justify-content-between">
-                                  <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle text-black" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
-                                        <i class="fa fa-bars" style="color: #6647FC;" aria-hidden="true"></i>
-                                    </a>
-                                    <div class="dropdown-menu">
-                                      <a class="dropdown-item" href="#" data-toggle="modal" data-target="#imageEdit" data-dismiss="modal">Editar</a>
-                                      <a class="dropdown-item" href="#" onclick="eliminar()" >Eliminar</a>
-                                    </div>
-                                  </li>
-                              </ul>
+                          <ul class="nav navbar justify-content-between">
+                                <li class="nav-item dropdown">
+                                  <a class="nav-link dropdown-toggle text-black" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                                      <i class="fa fa-bars" style="color: #6647FC;" aria-hidden="true"></i>
+                                  </a>
+                                  <div class="dropdown-menu">
+                                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#imageEdit" data-dismiss="modal">Editar</a>
+                                    <a class="dropdown-item" href="#" onclick="eliminar()" >Eliminar</a>
+                                  </div>
+                                </li>
+                            </ul>
                         </div>
-                   </div>
-                   <div class="row">
-                       <div class="col-12 mt-4">
-                           <h5>Nombre Imagen</h5>
-                           <h6 class="mt-3">Descripcion</h6>
-                           <p style="font-size: 14px;" class="pr-4 text-justify">Lorem ipsum dolor, sit amet consectetur adipisicing elit. Expedita, praesentium odio? Nobis quos distinctio necessitatibus voluptatum inventore fuga dolor a perferendis labore at soluta ut aperiam, laudantium fugit iste aspernatur!</p>
-                           <p style="font-size: 14px; color:#6647FC;">Imagen Publica</p>
-                           <p style="font-size: 14px;" class="text-muted">Publicación: 2 Dic 2020</p>
-                       </div>
-                       <div class="col-12 text-right">
-                        <i class="fa fa-cloud-download fa-3x mr-4 pointer" data-toggle="tooltip" data-placement="bottom" title="Descargar Imagen" aria-hidden="true" style="color:#6647FC;" aria-hidden="true"></i>
-                       </div>
+                      
+                    </div>
+                    <div class="row">
+                        <div class="col-12 mt-4">
+                            <h5>{{i.nombre}}</h5>
+                            <h6 class="mt-3">Descripcion</h6>
+                            <p style="font-size: 14px;" class="pr-4 text-justify">{{i.descripcion}}</p>
+                            <p style="font-size: 14px;" class="text-muted">Publicación: 2 Dic 2020</p>
+                        </div>
+                        <div class="col-12 text-right">
+                          <form action=""></form>
+                          
+                          <a href="/descargaImg/{{i.id}}"><i class="fa fa-cloud-download fa-3x mr-4 pointer "  data-toggle="tooltip" data-placement="bottom" title="Descargar Imagen" aria-hidden="true" style="color:#6647FC;" aria-hidden="true"></i></a>
+                        </div>
 
-                   </div>
-               </div>
-
-             </div>
-           </div>
-         </div>
-       </div>
-
- </div>
-
- <!-- Modal Editar fotografia -->
- <div class="modal-image">
-  <!-- Modal -->
-  <div class="modal fade" id="imageEdit"  data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-body row p-0">
-            <div class="col-7 position-relative overflow-hidden">
-                <img class="img-grande" src="./assets/image/p7.jpg" alt="foto">
-            </div>
-            <div class="col-5 pt-3">
-                <div class="header-perfil d-flex justify-content-between align-items-center">
-                     <div class="usuario-perfil">
-                         <img height="40px" width="40px"  style="border-radius: 50%;" src="./assets/image/perfil.jpg" alt="perfil">
-                         <span>@{{session['nombreUsuario']}}</span>
-                     </div>
+                    </div>
                 </div>
-                <form class="row">
-                    <div class="col-12 pt-5">
-                      <div style="margin-right: 3rem;">
-                        <div class="form-group">
-                          <input type="text" class="form-control" placeholder="Nombre Imagen" id="nombreImagen" name="nombreImagen" aria-describedby="emailHelp" value="Nombre Imagen">
-                        </div>
-                        <div class="form-group">
-                          <textarea class="form-control text-left" placeholder="Descripcion" id="descripcionImagen" name="descripcionImagen" rows="5">
-                            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Expedita, praesentium odio? Nobis quos distinctio necessitatibus voluptatum inventore fuga dolor a perferendis labore.
-                          </textarea>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-12">
-                      <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="publica" name="publica" value="publica">
-                        <label class="form-check-label" for="inlineRadio1">Publica</label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="inlineRadioOptions"     id="privada" name="privada" value="privada">
-                        <label class="form-check-label" for="inlineRadio2">Privada</label>
-                      </div>
-                      <div style="margin-top: 1rem; margin-right: 3rem;">
-                        <button type="submit" class="btn btn-ini btn-block ">Actualizar</button>
-                      </div>
-                    </div>
-                  </form>
+
+              </div>
             </div>
           </div>
         </div>
+
       </div>
+    
+   {% endfor%}
     </div>
-
-</div>
-
+  </div>
   <script
   src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
   integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"

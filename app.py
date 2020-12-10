@@ -1,6 +1,7 @@
-from flask import Flask, request,render_template,redirect,url_for,session,flash,jsonify
+from flask import Flask, request,render_template,redirect,url_for,session,flash,jsonify,send_file
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash,check_password_hash
+
 app = Flask(__name__)
 app.secret_key = 'dsadwe'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database/database.db'
@@ -67,6 +68,7 @@ def login():
             session['id'] = usuario.id
             session['nombreUsuario'] = usuario.nombreUsuario
             session['correo'] = usuario.correo
+            
             print('usuario correcto')
             return jsonify({'correcto': 'correcto'})
         else:
@@ -77,14 +79,38 @@ def login():
    
 #-------------------------------------------------------------------- 
 
-@app.route('/dashboard/',methods=['GET','POST'])
+@app.route('/dashboard',methods=['GET','POST'])
 def dashboard():
     """
          muestra el dashboard cuando el usuario esta logeado
 
     """
+    busqueda = request.args.get("buscar")
+    print(busqueda)
     if 'nombreUsuario' in session:         
-        return render_template('dashboard.html')
+        if busqueda == None or busqueda == "" :
+            imagenes = Imagenes.query.filter_by(id_usuario=session["id"]).filter_by(publico=1)
+            return render_template('dashboard.html',imagenes = imagenes)
+        else:
+            imagenes = []
+            #imagenes = Imagenes.query.filter_by(nombre=busqueda).filter_by(publico=1)
+            img = Imagenes.query.filter_by(publico=1)
+            claves = busqueda.split()
+            for i in img:   
+                encontrado = False            
+                clavesNombre = i.nombre.split()
+                for clave in claves: 
+                    if encontrado:
+                        continue 
+                    if clave in clavesNombre:
+                        imagenes.append(i)
+                        encontrado = True
+                
+
+                
+            return render_template('dashboard.html',imagenes = imagenes)
+            
+            
         
     else:
         return redirect(url_for('index'))
@@ -111,16 +137,37 @@ def uploadImg():
     return ''
 
 #-------------------------------------------------------------------- 
+@app.route('/descargaImg/<int:id>',methods=['GET','POST'])
+def descargaImg(id):
+    """ 
+        Sube imagenes del usuario
 
-@app.route('/perfil/',methods=['GET'])
+    """
+    print("descargaImg")
+    print(id)
+    imagen = Imagenes.query.filter_by(id=id).filter_by(publico=1).first()
+    url = imagen.url.replace("/","",1)
+    print(url)
+    #url = request.args.get("descargar")
+    #url = request.form["url"]
+    return send_file(url,as_attachment=True)
+   
+
+#-------------------------------------------------------------------- 
+
+@app.route('/perfil/')
 def perfil():
     """ 
         Muestra perfil del usuario
 
     """
-
-    if 'correo' in session: 
-        return render_template('perfil.html')
+    usuario = Usuarios.query.filter_by(nombreUsuario=session["nombreUsuario"]).first()
+    if 'nombreUsuario' in session: 
+        imagenes = Imagenes.query.filter_by(id_usuario=session["id"]).filter_by(publico=1)
+        npublicaciones = 0
+        for i in imagenes:
+            npublicaciones +=1
+        return render_template('perfil.html',imagenes = imagenes,usuario=usuario,npublicaciones = npublicaciones)
 
     else:
         return redirect(url_for('index'))
@@ -175,6 +222,17 @@ def envioContraseña():
 
     """
     return ''
+
+@app.route('/prueba')
+def prueba():
+    """ 
+        Guarda la nueva contraseña
+
+    """
+    busqueda = request.args.get("buscar")
+    print(busqueda)
+    return ''
+    
 
 
 
