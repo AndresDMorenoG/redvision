@@ -1,9 +1,14 @@
+import os
+import time
 from flask import Flask, request,render_template,redirect,url_for,session,flash,jsonify
+from werkzeug.utils import secure_filename
+from werkzeug.datastructures import  FileStorage
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash,check_password_hash
 app = Flask(__name__)
 app.secret_key = 'dsadwe'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database/database.db'
+app.config['UPLOAD_FOLDER'] = './imagenes'
 db = SQLAlchemy(app)
 from modelos import Usuarios,Imagenes
 
@@ -105,7 +110,51 @@ def uploadImg():
         Sube imagenes del usuario
 
     """
-    return ''
+    if request.method == 'POST':
+        # obtenemos el archivo del input "archivo"
+        f = request.files['imagen']
+        filename = secure_filename(f.filename)
+        filename = "ejemploe2.jpg"
+        lista = filename.split(".")
+        extension = lista[1]
+                
+        segundos = time.time();
+        milisegundos = str(segundos * 1000 )
+        filename = milisegundos + '.' + extension
+        
+        
+        
+        # Guardamos el archivo en el directorio "Archivos PDF"
+        f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        
+        
+        #Obteniendo datos del formulario
+        
+        nombre = request.form['nombre']
+        descripcion = request.form['descripcion']
+        estado = request.form['estado']
+        id_usuario = session['id']
+        url = filename
+        publico = True
+        
+        if estado == 'publica':
+            publico = True
+        else :
+            publico = False
+            
+        print(nombre, descripcion, estado, url, session['id'], publico)
+        
+        print(session['id'] )
+        
+        
+        imagenes = Imagenes(id_usuario=id_usuario, nombre = nombre, descripcion = descripcion, url = url, publico = publico)
+        
+        db.session.add(imagenes)
+        db.session.commit()
+       
+        
+        # Retornamos una respuesta satisfactoria
+        return redirect(url_for('perfil'))
 
 #-------------------------------------------------------------------- 
 
