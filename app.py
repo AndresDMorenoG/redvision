@@ -48,7 +48,7 @@ def create():
             return jsonify({'error': '2'})
         else:
             contraseña_cifrada = generate_password_hash(request.form['contraseña'])
-            usuarios = Usuarios(nombre=request.form['nombre'],apellido=request.form['apellido'], nombreUsuario=request.form['yuyu'],correo=request.form['correo'],contraseña=contraseña_cifrada,fecha=request.form['fecha'], activo = True)
+            usuarios = Usuarios(nombre=request.form['nombre'],apellido=request.form['apellido'], nombreUsuario=request.form['nombreUsuario'],correo=request.form['correo'],contraseña=contraseña_cifrada,fecha=request.form['fecha'], activo = True)
             db.session.add(usuarios)
             db.session.commit() 
             return jsonify({'creado': 'usuario creado'})
@@ -86,8 +86,8 @@ def dashboard():
     """
     if 'correo' in session:         
         imagenes = listarImagenesDashboard()
-        print(imagenes)
-        return render_template('dashboard.html',   imagenes = imagenes)
+        #print(imagenes)
+        return render_template('dashboard.html', imagenes = imagenes)
         
     else:
         return redirect(url_for('index'))
@@ -147,6 +147,7 @@ def uploadImg():
         else :
             publico = False
             
+        print(id_usuario, nombre,  descripcion, url,  publico, fecha)
         
         
         imagenes = Imagenes(id_usuario=id_usuario, nombre = nombre, descripcion = descripcion, url = url, publico = publico, fecha = fecha)
@@ -157,6 +158,7 @@ def uploadImg():
         
         # Retornamos una respuesta satisfactoria
         return redirect(url_for('perfil'))
+     
 
 #-------------------------------------------------------------------- 
 
@@ -235,8 +237,9 @@ def deleteImage():
 def listarImagenes():
     id_usuario = session['id'] 
     
+    
     imagenes = db.session.query(Imagenes).filter_by(id_usuario = id_usuario).all()
-
+    print(imagenes)
 
     return imagenes
 
@@ -248,6 +251,8 @@ def listarImagenes():
 
 def listarImagenesDashboard():
     id_usuario = session['id'] 
+    
+    print(id_usuario)
     
     imagenes = db.session.query(Imagenes).filter_by(publico = 1).all()
 
@@ -267,7 +272,7 @@ def perfil():
     imagenes = listarImagenes()
     if 'correo' in session:   
         
-        return render_template('perfil.html',  imagenes = imagenes)
+        return render_template('perfil.html', imagenes = imagenes)
 
     else:
         return redirect(url_for('index'))

@@ -5,6 +5,7 @@ $(document).ready(function(){
                     nombre: $('#nombrer').val(),
                     apellido: $('#apellidor').val(),
                     correo: $('#correor').val(),
+                    nombreUsuario: $('#nombreUsuario').val(),
                     fecha: $('#fechar').val(),
                     contraseña: $('#contraseñar').val()
             },
