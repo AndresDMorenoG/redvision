@@ -1,5 +1,8 @@
 
-function eliminar(){
+function eliminar(id){
+  idImagen = document.getElementById('eliminarImagenId')
+  console.log(idImagen.value);
+  console.log(id);
     swal({
         title: "¿Estas Seguro?",
         text: "Una vez eliminada la imagen no podras recuperarla",

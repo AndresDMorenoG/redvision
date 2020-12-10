@@ -117,6 +117,12 @@
 .file-caption-main {
   display: none;
 }
+.custom-file {
+  width: 267px !important;
+}
+#customFile{
+  width: 267px !important;
+}
 
 
 @media (min-width: 576px){

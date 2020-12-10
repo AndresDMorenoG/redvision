@@ -1,5 +1,6 @@
-import os
+import os 
 import time
+from datetime import datetime
 from flask import Flask, request,render_template,redirect,url_for,session,flash,jsonify
 from werkzeug.utils import secure_filename
 from werkzeug.datastructures import  FileStorage
@@ -8,7 +9,7 @@ from werkzeug.security import generate_password_hash,check_password_hash
 app = Flask(__name__)
 app.secret_key = 'dsadwe'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database/database.db'
-app.config['UPLOAD_FOLDER'] = './imagenes'
+app.config['UPLOAD_FOLDER'] = './static/imagenes'
 db = SQLAlchemy(app)
 from modelos import Usuarios,Imagenes
 
@@ -32,27 +33,25 @@ def index():
 def create():
     
     """ Se encarga de crear la sessiones si existe el usuario.
-
         .Verfica que el correo y la contraseña coincidan,
         si coinciden envia un mensaje de 'correcto', si no
         envia un mensaje de error.
     """
     
-    
-    print("entro 2")  
-    u = Usuarios.query.filter_by(correo=request.form["correo"]).first()
+  
+    u = Usuarios.query.filter_by(nombreUsuario=request.form["nombreUsuario"]).first()
     if u != None:
-        print("entro12")
-        return jsonify({'error': 'error'})
+        return jsonify({'error': '1'}) 
     else:
-        print("entro1")
-        contraseña_cifrada = generate_password_hash(request.form['contraseña'])
-        usuarios = Usuarios(nombre=request.form['nombre'],apellido=request.form['apellido'],correo=request.form['correo'],contraseña=contraseña_cifrada,fecha=request.form['fecha'])
-            
-        db.session.add(usuarios)
-        db.session.commit()
-        print("entro 1")        
-        return jsonify({'creado': 'usuario creado'})
+        u = Usuarios.query.filter_by(correo=request.form["correo"]).first()
+        if u != None:
+            return jsonify({'error': '2'})
+        else:
+            contraseña_cifrada = generate_password_hash(request.form['contraseña'])
+            usuarios = Usuarios(nombre=request.form['nombre'],apellido=request.form['apellido'], nombreUsuario=request.form['yuyu'],correo=request.form['correo'],contraseña=contraseña_cifrada,fecha=request.form['fecha'], activo = True)
+            db.session.add(usuarios)
+            db.session.commit() 
+            return jsonify({'creado': 'usuario creado'})
     
 #-------------------------------------------------------------------- 
 
@@ -86,7 +85,9 @@ def dashboard():
 
     """
     if 'correo' in session:         
-        return render_template('dashboard.html')
+        imagenes = listarImagenesDashboard()
+        print(imagenes)
+        return render_template('dashboard.html',   imagenes = imagenes)
         
     else:
         return redirect(url_for('index'))
@@ -120,7 +121,7 @@ def uploadImg():
                 
         segundos = time.time();
         milisegundos = str(segundos * 1000 )
-        filename = milisegundos + '.' + extension
+        filename =  milisegundos + '.' + extension
         
         
         
@@ -134,20 +135,21 @@ def uploadImg():
         descripcion = request.form['descripcion']
         estado = request.form['estado']
         id_usuario = session['id']
-        url = filename
+        url = "imagenes/"+ filename
         publico = True
+        now = datetime.now()
+        
+        fecha = str(now.year )+ "-" + str(now.month) + "-" + str(now.day)
+        
         
         if estado == 'publica':
             publico = True
         else :
             publico = False
             
-        print(nombre, descripcion, estado, url, session['id'], publico)
-        
-        print(session['id'] )
         
         
-        imagenes = Imagenes(id_usuario=id_usuario, nombre = nombre, descripcion = descripcion, url = url, publico = publico)
+        imagenes = Imagenes(id_usuario=id_usuario, nombre = nombre, descripcion = descripcion, url = url, publico = publico, fecha = fecha)
         
         db.session.add(imagenes)
         db.session.commit()
@@ -158,20 +160,119 @@ def uploadImg():
 
 #-------------------------------------------------------------------- 
 
+
+@app.route('/updateImage',methods=['POST'] )
+def updateImage():
+    
+    """ 
+        Actualiza imagenes del usuario
+
+    """
+    if request.method == 'POST':
+        fl = request.files['nuevaImagen']
+        filename = secure_filename(fl.filename)
+        lista = filename.split(".")
+        extension = lista[1]
+        
+        segundos = time.time();
+        milisegundos = str(segundos * 1000 )
+        filename =  milisegundos + '.' + extension
+        
+        
+        # Guardamos el archivo en el directorio "Archivos PDF"
+        fl.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        
+        
+        nombre = request.form['nombre']
+        descripcion = request.form['descripcion']
+        estado = request.form['estado']
+        idImagen = request.form['idImagen']
+        direccion = request.form['direccion']
+        url = "imagenes/"+ filename
+        publico = True
+        now = datetime.now()
+        image_eliminar = "./static/"+direccion;
+        
+        if estado == 'publica':
+                publico = True
+        else :
+            publico = False
+        
+        imagen = db.session.query(Imagenes).filter_by(id = idImagen).first()
+        imagen.nombre = nombre
+        imagen.descripcion = descripcion
+        imagen.publico = publico
+        imagen.url = url
+        
+        #eliminado imagen antigua del directorio
+        os.remove(image_eliminar)
+        
+        db.session.commit()
+    
+    return redirect(url_for('perfil'))
+
+
+#-------------------------------------------------------------------- 
+
+
+@app.route('/deleteImage',methods=['POST'] )
+def deleteImage():
+    
+    """ 
+        Delete imagenes del usuario
+
+    """
+    if request.method == 'POST':
+
+        print("sdfsdf")
+
+    return redirect(url_for('perfil'))
+
+
+
+
+#-------------------------------------------------------------------- 
+def listarImagenes():
+    id_usuario = session['id'] 
+    
+    imagenes = db.session.query(Imagenes).filter_by(id_usuario = id_usuario).all()
+
+
+    return imagenes
+
+
+
+#-------------------------------------------------------------------- 
+
+
+
+def listarImagenesDashboard():
+    id_usuario = session['id'] 
+    
+    imagenes = db.session.query(Imagenes).filter_by(publico = 1).all()
+
+
+    return imagenes
+
+
+#-------------------------------------------------------------------- 
+
+
 @app.route('/perfil',methods=['GET'])
 def perfil():
     """ 
         Muestra perfil del usuario
 
     """
-
-    if 'correo' in session: 
-        return render_template('perfil.html')
+    imagenes = listarImagenes()
+    if 'correo' in session:   
+        
+        return render_template('perfil.html',  imagenes = imagenes)
 
     else:
         return redirect(url_for('index'))
 
-#-------------------------------------------------------------------- 
+
 
 @app.route('/configuracion')
 def configuracion():
