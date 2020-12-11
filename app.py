@@ -128,15 +128,114 @@ def exit():
 
 #-------------------------------------------------------------------- 
 
-@app.route('/uploadImg/',methods=['POST'] )
+@app.route('/uploadImg',methods=['POST'] )
 def uploadImg():
     """ 
         Sube imagenes del usuario
-
     """
-    return ''
+    if request.method == 'POST':
+        # obtenemos el archivo del input "archivo"
+        f = request.files['imagen']
+        filename = secure_filename(f.filename)
+        filename = "ejemploe2.jpg"
+        lista = filename.split(".")
+        extension = lista[1]
+                
+        segundos = time.time();
+        milisegundos = str(segundos * 1000 )
+        filename =  milisegundos + '.' + extension
+        
+        
+        
+        # Guardamos el archivo en el directorio "Archivos PDF"
+        f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        
+        
+        #Obteniendo datos del formulario
+        
+        nombre = request.form['nombre']
+        descripcion = request.form['descripcion']
+        estado = request.form['estado']
+        id_usuario = session['id']
+        url = "imagenes/"+ filename
+        publico = True
+        now = datetime.now()
+        
+        fecha = str(now.year )+ "-" + str(now.month) + "-" + str(now.day)
+        
+        
+        if estado == 'publica':
+            publico = True
+        else :
+            publico = False
+            
+        print(id_usuario, nombre,  descripcion, url,  publico, fecha)
+        
+        
+        imagenes = Imagenes(id_usuario=id_usuario, nombre = nombre, descripcion = descripcion, url = url, publico = publico, fecha = fecha)
+        
+        db.session.add(imagenes)
+        db.session.commit()
+       
+        
+        # Retornamos una respuesta satisfactoria
+        return redirect(url_for('perfil'))
+     
+#-------------------------------------------------------------------- 
+
+
+@app.route('/updateImage',methods=['POST'] )
+def updateImage():
+    
+    """ 
+        Actualiza imagenes del usuario
+    """
+    if request.method == 'POST':
+        fl = request.files['nuevaImagen']
+        filename = secure_filename(fl.filename)
+        lista = filename.split(".")
+        extension = lista[1]
+        
+        segundos = time.time();
+        milisegundos = str(segundos * 1000 )
+        filename =  milisegundos + '.' + extension
+        
+        
+        # Guardamos el archivo en el directorio "Archivos PDF"
+        fl.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        
+        
+        nombre = request.form['nombre']
+        descripcion = request.form['descripcion']
+        estado = request.form['estado']
+        idImagen = request.form['idImagen']
+        direccion = request.form['direccion']
+        url = "imagenes/"+ filename
+        publico = True
+        now = datetime.now()
+        image_eliminar = "./static/"+direccion;
+        
+        if estado == 'publica':
+                publico = True
+        else :
+            publico = False
+        
+        imagen = db.session.query(Imagenes).filter_by(id = idImagen).first()
+        imagen.nombre = nombre
+        imagen.descripcion = descripcion
+        imagen.publico = publico
+        imagen.url = url
+        
+        #eliminado imagen antigua del directorio
+        os.remove(image_eliminar)
+        
+        db.session.commit()
+    
+    return redirect(url_for('perfil'))
+
 
 #-------------------------------------------------------------------- 
+
 @app.route('/descargaImg/<int:id>',methods=['GET'])
 def descargaImg(id):
     """ 
@@ -181,7 +280,19 @@ def configuracion():
 
     else:
         return redirect(url_for('index'))
+#--------------------------------------------------------------------
+@app.route('/deleteImage',methods=['POST'] )
+def deleteImage():
+    
+    """ 
+        Delete imagenes del usuario
+    """
+    if request.method == 'POST':
 
+        print("sdfsdf")
+
+    return redirect(url_for('perfil'))
+    
 
 #-------------------------------------------------------------------- 
 
