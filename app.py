@@ -86,7 +86,7 @@ def dashboard():
     """
     if 'correo' in session:         
         imagenes = listarImagenesDashboard()
-        #print(imagenes)
+        
         return render_template('dashboard.html', imagenes = imagenes)
         
     else:
@@ -147,8 +147,7 @@ def uploadImg():
         else :
             publico = False
             
-        print(id_usuario, nombre,  descripcion, url,  publico, fecha)
-        
+        print(id_usuario, nombre,  descripcion,  url,  publico,  fecha)
         
         imagenes = Imagenes(id_usuario=id_usuario, nombre = nombre, descripcion = descripcion, url = url, publico = publico, fecha = fecha)
         
@@ -158,7 +157,6 @@ def uploadImg():
         
         # Retornamos una respuesta satisfactoria
         return redirect(url_for('perfil'))
-     
 
 #-------------------------------------------------------------------- 
 
@@ -237,9 +235,8 @@ def deleteImage():
 def listarImagenes():
     id_usuario = session['id'] 
     
-    
     imagenes = db.session.query(Imagenes).filter_by(id_usuario = id_usuario).all()
-    print(imagenes)
+
 
     return imagenes
 
@@ -251,8 +248,6 @@ def listarImagenes():
 
 def listarImagenesDashboard():
     id_usuario = session['id'] 
-    
-    print(id_usuario)
     
     imagenes = db.session.query(Imagenes).filter_by(publico = 1).all()
 

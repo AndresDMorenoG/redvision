@@ -19,13 +19,13 @@
             </div>
             {% for image in imagenes %}
             <div class="col-4 mb-3">
-                <img class="din4 pointer" src=" {{url_for('static', filename=image.url)}} "   data-toggle="modal" data-target="#imagePerfil{{image.id}} " alt="foto"  >
+                <img class="din4 pointer" src=" {{url_for('static', filename=image.url)}} "   data-toggle="modal" data-target="#{{image.nombre}} " alt="foto"  >
             </div>
 
-            
+            <!-- Modal fotografia -->
             <div class="modal-image">
-            
-              <div class="modal fade" id="imagePerfil{{image.id}}"  data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+              <!-- Modal -->
+              <div class="modal fade" id="{{image.nombre}}"  data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                   <div class="modal-dialog">
                     <div class="modal-content">
                       <div class="modal-body row p-0">
@@ -62,10 +62,7 @@
                                     <p style="font-size: 14px;" class="text-muted">Publicación: {{image.fecha}}</p>
                                 </div>
                                 <div class="col-12 text-right">
-
-                                  <a href="{{url_for('static', filename=image.url)}} " download>
-                                    <i class="fa fa-cloud-download fa-3x mr-4 pointer" data-toggle="tooltip" data-placement="bottom" title="Descargar Imagen" aria-hidden="true" style="color:#6647FC;" aria-hidden="true"></i>
-                                  </a>
+                                <i class="fa fa-cloud-download fa-3x mr-4 pointer" data-toggle="tooltip" data-placement="bottom" title="Descargar Imagen" aria-hidden="true" style="color:#6647FC;" aria-hidden="true"></i>
                                 </div>
 
                             </div>
@@ -80,9 +77,9 @@
 
 
 
-            
+             <!-- Modal Editar fotografia -->
             <div class="modal-image">
-            
+              <!-- Modal -->
               <div class="modal fade" id="ModalImage{{image.id}}"  data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                   <div class="modal-dialog">
                     <div class="modal-content">
@@ -149,7 +146,7 @@
   
 
       </div>
-    </div>
+
 
 
 
