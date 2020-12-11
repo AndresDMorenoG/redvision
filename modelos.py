@@ -18,3 +18,4 @@ class Imagenes(db.Model):
     descripcion = db.Column(db.String())
     url = db.Column(db.String())
     publico = db.Column(db.Boolean())
+    fecha = db.Column(db.String())

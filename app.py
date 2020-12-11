@@ -1,10 +1,16 @@
+
+import os 
+import time
+from datetime import datetime
 from flask import Flask, request,render_template,redirect,url_for,session,flash,jsonify,send_file
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash,check_password_hash
-
+from werkzeug.datastructures import  FileStorage
+from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.secret_key = 'dsadwe'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database/database.db'
+app.config['UPLOAD_FOLDER'] = './static/imagenes'
 db = SQLAlchemy(app)
 from modelos import Usuarios,Imagenes
 
@@ -157,7 +163,7 @@ def uploadImg():
         descripcion = request.form['descripcion']
         estado = request.form['estado']
         id_usuario = session['id']
-        url = "imagenes/"+ filename
+        url = "/static/imagenes/"+ filename
         publico = True
         now = datetime.now()
         
