@@ -240,23 +240,6 @@ def updateImage():
     return redirect(url_for('perfil'))
 
 
-#-------------------------------------------------------------------- 
-
-@app.route('/descargaImg/<int:id>',methods=['GET'])
-def descargaImg(id):
-    """ 
-        Sube imagenes del usuario
-
-    """
-    print("descargaImg")
-    print(id)
-    imagen = Imagenes.query.filter_by(id=id).filter_by(publico=1).first()
-    url = imagen.url.replace("/","",1)
-    print(url)
-    #url = request.args.get("descargar")
-    #url = request.form["url"]
-    return send_file(url,as_attachment=True)
-   
 
 #-------------------------------------------------------------------- 
 
