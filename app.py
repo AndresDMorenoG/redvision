@@ -92,26 +92,13 @@ def dashboard():
 
     """
     busqueda = request.args.get("buscar")
-    print(busqueda)
+
     if 'nombreUsuario' in session:         
         if busqueda == None or busqueda == "" :
             imagenes = Imagenes.query.filter_by(id_usuario=session["id"]).filter_by(publico=1)
             return render_template('dashboard.html',imagenes = imagenes)
         else:
-            imagenes = []
-            #imagenes = Imagenes.query.filter_by(nombre=busqueda).filter_by(publico=1)
-            img = Imagenes.query.filter_by(publico=1)
-            claves = busqueda.split()
-            for i in img:   
-                encontrado = False            
-                clavesNombre = i.nombre.split()
-                for clave in claves: 
-                    if encontrado:
-                        continue 
-                    if clave in clavesNombre:
-                        imagenes.append(i)
-                        encontrado = True
-                
+            imagenes = BuscarImagenesDashboard(busqueda)
 
                 
             return render_template('dashboard.html',imagenes = imagenes)
@@ -163,7 +150,7 @@ def uploadImg():
         descripcion = request.form['descripcion']
         estado = request.form['estado']
         id_usuario = session['id']
-        url = "/static/imagenes/"+ filename
+        url = "imagenes/"+ filename
         publico = True
         now = datetime.now()
         
@@ -240,8 +227,32 @@ def updateImage():
     return redirect(url_for('perfil'))
 
 
+#-------------------------------------------------------------------- 
+
+
+
+def BuscarImagenesDashboard(busqueda):
+     
+    
+    imagenes = []
+            #imagenes = Imagenes.query.filter_by(nombre=busqueda).filter_by(publico=1)
+    img = Imagenes.query.filter_by(publico=1)
+    claves = busqueda.split()
+    for i in img:   
+        encontrado = False            
+        clavesNombre = i.nombre.split()
+        for clave in claves: 
+            if encontrado:
+                continue 
+            if clave in clavesNombre:
+                imagenes.append(i)
+                encontrado = True
+
+
+    return imagenes
 
 #-------------------------------------------------------------------- 
+
 
 @app.route('/perfil/')
 def perfil():
@@ -251,7 +262,7 @@ def perfil():
     """
     usuario = Usuarios.query.filter_by(nombreUsuario=session["nombreUsuario"]).first()
     if 'nombreUsuario' in session: 
-        imagenes = Imagenes.query.filter_by(id_usuario=session["id"]).filter_by(publico=1)
+        imagenes = Imagenes.query.filter_by(id_usuario=session["id"])
         npublicaciones = 0
         for i in imagenes:
             npublicaciones +=1
