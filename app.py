@@ -7,12 +7,14 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash,check_password_hash
 from werkzeug.datastructures import  FileStorage
 from werkzeug.utils import secure_filename
+import yagmail
 app = Flask(__name__)
 app.secret_key = 'dsadwe'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database/database.db'
 app.config['UPLOAD_FOLDER'] = './static/imagenes'
 db = SQLAlchemy(app)
 from modelos import Usuarios,Imagenes
+
 
 
 #-------------------------------------------------------------------- 
@@ -296,13 +298,15 @@ def deleteImage():
 
 #-------------------------------------------------------------------- 
 
-@app.route('/CorreoRecuperar/',methods=['POST'])
+@app.route('/CorreoRecuperar',methods=['POST'])
 def correoRecuperacion():
     """ 
         Envia Correo de recuperacion
-
     """
-    return ''
+    email=request.form["recuperarcorreo"]
+    yag = yagmail.SMTP('redvisionmisiontic@gmail.com', 'Grupo11B') 
+    yag.send(to=email, subject="Recuperar contraseña",contents="Usa este link para recuperar la constraseña")
+    return redirect(url_for('index'))
 
 #-------------------------------------------------------------------- 
 

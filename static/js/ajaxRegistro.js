@@ -28,9 +28,7 @@ $(document).ready(function(){
             }
             
             else{
-               /* $('#errorRegistro').html(`<div class="alert alert-success" id="borrar" role="alert">
-                Usuario registrado
-              </div>`);*/
+              
                 $('#nombrer').val("");
                 $('#apellidor').val("");
                 $('#correor').val("");
