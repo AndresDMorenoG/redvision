@@ -6,6 +6,7 @@ app.secret_key = 'dsadwe'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database/database.db'
 db = SQLAlchemy(app)
 from modelos import Usuarios,Imagenes
+import yagmail
 
 
 #-------------------------------------------------------------------- 
@@ -43,10 +44,14 @@ def create():
         print("entro1")
         contraseña_cifrada = generate_password_hash(request.form['contraseña'])
         usuarios = Usuarios(nombre=request.form['nombre'],apellido=request.form['apellido'],correo=request.form['correo'],contraseña=contraseña_cifrada,fecha=request.form['fecha'])
-            
+        
         db.session.add(usuarios)
         db.session.commit()
-        print("entro 1")        
+
+        email=request.form["correo"]
+        yag = yagmail.SMTP('redvisionmisiontic@gmail.com', 'Grupo11B') 
+        yag.send(to=email, subject='Activa tu cuenta',contents='Bienvenido, usa este link para activar tu cuenta ')
+    
         return jsonify({'creado': 'usuario creado'})
     
 #-------------------------------------------------------------------- 
@@ -141,16 +146,19 @@ def correoRecuperacion():
         Envia Correo de recuperacion
 
     """
-    return ''
+    email=request.form["recuperarcorreo"]
+    yag = yagmail.SMTP('redvisionmisiontic@gmail.com', 'Grupo11B') 
+    yag.send(to=email, subject="Recuperar contraseña",contents="Usa este link para recuperar la constraseña")
+    return redirect(url_for('index'))
 
 #-------------------------------------------------------------------- 
 
-@app.route('/CorreoValidar',methods=['POST'])
+@app.route('/crearusuario',methods=['POST'])
 def correoValidacion():
     """ 
         Envia Correo de validacion del usuario
 
-    """
+    """ 
     return ''
 
 #-------------------------------------------------------------------- 
