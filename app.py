@@ -137,7 +137,7 @@ def uploadImg():
     return ''
 
 #-------------------------------------------------------------------- 
-@app.route('/descargaImg/<int:id>',methods=['GET','POST'])
+@app.route('/descargaImg/<int:id>',methods=['GET'])
 def descargaImg(id):
     """ 
         Sube imagenes del usuario
@@ -223,16 +223,7 @@ def envioContraseña():
     """
     return ''
 
-@app.route('/prueba')
-def prueba():
-    """ 
-        Guarda la nueva contraseña
 
-    """
-    busqueda = request.args.get("buscar")
-    print(busqueda)
-    return ''
-    
 
 
 
