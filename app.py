@@ -55,6 +55,7 @@ def create():
             usuarios = Usuarios(nombre=request.form['nombre'],apellido=request.form['apellido'],correo=request.form['correo'],contraseña=contraseña_cifrada,fecha=request.form['fecha'],nombreUsuario=request.form['nombreUsuario'])
             db.session.add(usuarios)
             db.session.commit() 
+            correoValidacion(usuarios.correo)
             return jsonify({'creado': 'usuario creado'})
     
 #-------------------------------------------------------------------- 
@@ -311,10 +312,17 @@ def correoRecuperacion():
     """ 
         Envia Correo de recuperacion
     """
-    email=request.form["recuperarcorreo"]
-    yag = yagmail.SMTP('redvisionmisiontic@gmail.com', 'Grupo11B') 
-    yag.send(to=email, subject="Recuperar contraseña",contents="Usa este link para recuperar la constraseña")
-    return redirect(url_for('index'))
+    usuario = Usuarios.query.filter_by(correo=request.form["recuperarcorreo"]).first()
+    if usuario != None:
+        email=request.form["recuperarcorreo"]
+        token = usuario.get_reset_token()
+        contenido = render_template('emailRecuperar.html', nombre = usuario.nombreUsuario, token=token )
+        yag = yagmail.SMTP('redvisionmisiontic@gmail.com', 'Grupo11B') 
+        yag.send(to=email, subject="Recuperar contraseña",contents=contenido)
+        return redirect(url_for('index'))
+    else:  
+        print('error')        
+        return jsonify({'error': '1'})
 
 #-------------------------------------------------------------------- 
 
@@ -324,7 +332,12 @@ def correoValidacion():
         Envia Correo de validacion del usuario
 
     """
-    return ''
+    usuario = Usuarios.query.filter_by(correo=email).first()
+    contenido = render_template('correoActivacion.html', nombre = usuario.nombreUsuario )
+    yag = yagmail.SMTP('redvisionmisiontic@gmail.com', 'Grupo11B') 
+    yag.send(to=email, subject='Confirmación de activación de cuenta',contents=contenido)
+    usuario.activo = True
+    db.session.commit()
 
 #-------------------------------------------------------------------- 
 
