@@ -33,3 +33,8 @@ function eliminar(){
         }
       });
 }
+
+function Storage() {
+  console.log("ejecutando la funcion");
+  //usuario = document.getElementById("");
+}
