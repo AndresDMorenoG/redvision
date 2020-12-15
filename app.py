@@ -69,20 +69,17 @@ def login():
     """
     
     usuario = Usuarios.query.filter_by(correo=request.form["correo"]).first()
-    print(usuario.correo)
-    print(usuario != None)
+  
     if usuario != None:
         if  check_password_hash(usuario.contraseña,request.form['contraseña']):
             session['id'] = usuario.id
             session['nombreUsuario'] = usuario.nombreUsuario
             session['correo'] = usuario.correo
-            
-            print('usuario correcto')
             return jsonify({'correcto': 'correcto'})
         else:
             return jsonify({'error': '2'})
     else:  
-        print('error')        
+      
         return jsonify({'error': '1'})
    
 #-------------------------------------------------------------------- 
@@ -164,7 +161,7 @@ def uploadImg():
         else :
             publico = False
             
-        print(id_usuario, nombre,  descripcion, url,  publico, fecha)
+       
         
         
         imagenes = Imagenes(id_usuario=id_usuario, nombre = nombre, descripcion = descripcion, url = url, publico = publico, fecha = fecha)
@@ -186,30 +183,20 @@ def updateImage():
         Actualiza imagenes del usuario
     """
     if request.method == 'POST':
+        
         fl = request.files['nuevaImagen']
         filename = secure_filename(fl.filename)
-        lista = filename.split(".")
-        extension = lista[1]
-        
-        segundos = time.time();
-        milisegundos = str(segundos * 1000 )
-        filename =  milisegundos + '.' + extension
-        
-        
-        # Guardamos el archivo en el directorio "Archivos PDF"
-        fl.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        
-        
         nombre = request.form['nombre']
         descripcion = request.form['descripcion']
         estado = request.form['estado']
         idImagen = request.form['idImagen']
         direccion = request.form['direccion']
-        url = "imagenes/"+ filename
+       
+        
         publico = True
         now = datetime.now()
-        image_eliminar = "./static/"+direccion;
-        
+
+    
         if estado == 'publica':
                 publico = True
         else :
@@ -219,13 +206,25 @@ def updateImage():
         imagen.nombre = nombre
         imagen.descripcion = descripcion
         imagen.publico = publico
-        imagen.url = url
         
-        #eliminado imagen antigua del directorio
-        os.remove(image_eliminar)
+        if filename != "":
+
+            lista = filename.split(".")
+            extension = lista[1]
+            segundos = time.time();
+            milisegundos = str(segundos * 1000 )
+            filename =  milisegundos + '.' + extension
+            url = "imagenes/"+ filename
+            imagen.url = url
+            # Guardamos el archivo en el directorio "Archivos PDF"
+            fl.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            image_eliminar = "./static/" +  direccion;
+            
+            #eliminado imagen antigua del directorio
+            os.remove(image_eliminar)
         
         db.session.commit()
-    
+
     return redirect(url_for('perfil'))
 
 
@@ -290,12 +289,21 @@ def deleteImage():
         Delete imagenes del usuario
     """
     if request.method == 'POST':
+ 
+        id = request.form["id"]
+        id_usuario = session["id"]
+        imagen = Imagenes.query.filter_by(id=id).first()
 
-        print("sdfsdf")
+        if imagen.id_usuario == id_usuario:
+            db.session.delete(imagen)
+            db.session.commit()
+            os.remove("./static/" + imagen.url)
 
-    return redirect(url_for('perfil'))
-    
+            return jsonify({'mensaje':'correcto'})
 
+        
+    else:
+        return redirect(url_for('index'))
 #-------------------------------------------------------------------- 
 
 @app.route('/CorreoRecuperar',methods=['POST'])
