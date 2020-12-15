@@ -54,7 +54,7 @@
                                       </a>
                                       <div class="dropdown-menu">
                                         <a class="dropdown-item" href="#" data-toggle="modal" data-target="#ModalImage{{image.id}}" data-dismiss="modal">Editar</a>
-                                        <a class="dropdown-item" href="#" onclick="eliminar()" >Eliminar</a>
+                                        <a class="dropdown-item" href="#" onclick="eliminar{{image.id}}()" >Eliminar</a>
                                         <input type="text" class="d-none" id="eliminarImagenI" value="{{image.id}}">
                                       </div>
                                     </li>
@@ -149,19 +149,51 @@
           </div>
 
       </div>
+      <script>
+        
+      function eliminar{{image.id}}(){
+        swal({
+            title: "¿Estas Seguro?",
+            text: "Una vez eliminada la imagen no podras recuperarla",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+          })
+          .then((willDelete) => {
+            if (willDelete) {
+              $.ajax({
+                data:{
+                    id: "{{image.id}}"
+                },
+                type: 'POST',
+                url: '/deleteImage'
+              })
+              .done(function(data){
+                
+                $(location).attr('href', '/perfil/')
+              });
+              
+              
+            } else {
+              swal("Tu imagen no se elimino", {
+                button : {
+                    className : "btn-ini"
+                }
+              });
+            }
+          });
+      }
 
+      </script>
 
       {% endfor %}
     </div>
   </div>
-  <script
-  src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-  integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
-  crossorigin="anonymous"
-></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+     
 <script src="{{url_for('static', filename='assets/bootstrap/js/bootstrap.min.js')}}"></script>
 <script src="{{url_for('static', filename='assets/kartik/js/fileinput.min.js')}}"></script>
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-<script src="{{ url_for('static', filename='js/main.js')}}"></script>
+<!--<script src="{{ url_for('static', filename='js/main.js')}}?n=4"></script>-->
 
 {% endblock %}

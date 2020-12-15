@@ -290,12 +290,21 @@ def deleteImage():
         Delete imagenes del usuario
     """
     if request.method == 'POST':
+        print("entro")
+        id = request.form["id"]
+        id_usuario = session["id"]
+        imagen = Imagenes.query.filter_by(id=id).first()
+        print("elimino " + id)
+        if imagen.id_usuario == id_usuario:
+            db.session.delete(imagen)
+            db.session.commit()
+            os.remove("./static/" + imagen.url)
+            print("elimino " + id)
+            return jsonify({'mensaje':'correcto'})
 
-        print("sdfsdf")
-
-    return redirect(url_for('perfil'))
-    
-
+        
+    else:
+        return redirect(url_for('index'))
 #-------------------------------------------------------------------- 
 
 @app.route('/CorreoRecuperar',methods=['POST'])

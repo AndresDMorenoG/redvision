@@ -9,9 +9,21 @@ function eliminar(){
       })
       .then((willDelete) => {
         if (willDelete) {
-          swal("Tu imagen fue eliminada", {
-            icon: "success",
+          $.ajax({
+            data:{
+                //correo: $('#correo').val(),
+                id: idImg
+            },
+            type: 'POST',
+            url: '/deleteImage'
+          })
+          .done(function(data){
+            swal("Tu imagen fue eliminada", {
+              icon: "success",
+            });
           });
+          
+          
         } else {
           swal("Tu imagen no se elimino", {
             button : {
