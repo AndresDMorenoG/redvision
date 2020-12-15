@@ -52,7 +52,7 @@ def create():
             return jsonify({'error': '2'})
         else:
             contraseña_cifrada = generate_password_hash(request.form['contraseña'])
-            usuarios = Usuarios(nombre=request.form['nombre'],apellido=request.form['apellido'],correo=request.form['correo'],contraseña=contraseña_cifrada,fecha=request.form['fecha'],nombreUsuario=request.form['nombreUsuario'], imgPerfil="No")
+            usuarios = Usuarios(nombre=request.form['nombre'],apellido=request.form['apellido'],correo=request.form['correo'],contraseña=contraseña_cifrada,fecha=request.form['fecha'],nombreUsuario=request.form['nombreUsuario'], imgPerfil="img/perfil_defecto.jpg")
             db.session.add(usuarios)
             db.session.commit() 
             return jsonify({'creado': 'usuario creado'})
@@ -329,8 +329,8 @@ def uploadImagePerfil():
         
         fl.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         
-        if usuario.imgPerfil == "No" :
-            print("no imagen")
+        if usuario.imgPerfil == "img/perfil_defecto.jpg" :
+            pass
         else :
             image_eliminar = "./static/"+usuario.imgPerfil;
             os.remove(image_eliminar)
