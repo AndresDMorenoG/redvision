@@ -9,6 +9,7 @@ class Usuarios(db.Model):
     contraseña = db.Column(db.String())
     fecha = db.Column(db.String())
     activo = db.Column(db.Boolean())
+    imgPerfil = db.Column(db.String())
 
 
 class Imagenes(db.Model):

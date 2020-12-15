@@ -52,7 +52,7 @@ def create():
             return jsonify({'error': '2'})
         else:
             contraseña_cifrada = generate_password_hash(request.form['contraseña'])
-            usuarios = Usuarios(nombre=request.form['nombre'],apellido=request.form['apellido'],correo=request.form['correo'],contraseña=contraseña_cifrada,fecha=request.form['fecha'],nombreUsuario=request.form['nombreUsuario'])
+            usuarios = Usuarios(nombre=request.form['nombre'],apellido=request.form['apellido'],correo=request.form['correo'],contraseña=contraseña_cifrada,fecha=request.form['fecha'],nombreUsuario=request.form['nombreUsuario'], imgPerfil="No")
             db.session.add(usuarios)
             db.session.commit() 
             return jsonify({'creado': 'usuario creado'})
@@ -96,14 +96,14 @@ def dashboard():
     busqueda = request.args.get("buscar")
 
     if 'nombreUsuario' in session:         
+        usuario = Usuarios.query.filter_by(nombreUsuario=session["nombreUsuario"]).first()
+        print(usuario)
         if busqueda == None or busqueda == "" :
             imagenes = Imagenes.query.filter_by(id_usuario=session["id"]).filter_by(publico=1)
-            return render_template('dashboard.html',imagenes = imagenes)
+            return render_template('dashboard.html',imagenes = imagenes,  usuario = usuario)
         else:
-            imagenes = BuscarImagenesDashboard(busqueda)
-
-                
-            return render_template('dashboard.html',imagenes = imagenes)
+            imagenes = BuscarImagenesDashboard(busqueda)               
+            return render_template('dashboard.html',imagenes = imagenes, usuario = usuario)
             
             
         
@@ -275,13 +275,77 @@ def perfil():
 
 #-------------------------------------------------------------------- 
 
-@app.route('/configuracion/')
+@app.route('/configuracion')
 def configuracion():
+    usuario = Usuarios.query.filter_by(nombreUsuario=session["nombreUsuario"]).first()
+    print(usuario)
     if 'correo' in session: 
-        return render_template('configuracion.html')
+        return render_template('configuracion.html', usuario=usuario)
 
     else:
         return redirect(url_for('index'))
+    
+@app.route('/updateConfiguracion', methods=['POST'] )
+def updateConfiguracion():
+    usuario = Usuarios.query.filter_by(nombreUsuario=session["nombreUsuario"]).first()
+    if 'correo' in session: 
+        nombre = request.form['nombre']
+        correo = request.form['correo']
+        fecha = request.form['fecha']
+        usuario.nombre = nombre
+        usuario.correo = correo
+        usuario.fecha = fecha
+        
+        db.session.commit()
+        
+        return redirect(url_for('configuracion'))
+   
+    else:
+        return redirect(url_for('index'))    
+    
+    
+ #-------------------------------------------------------------------- 
+#--------------------------------------------------------------------
+
+@app.route('/uploadImagePerfil',methods=['POST'] )
+def uploadImagePerfil():
+    
+    """ 
+        Actualiza imagen de perfil del usuario
+    """
+    if request.method == 'POST':
+        
+        usuario = Usuarios.query.filter_by(nombreUsuario=session["nombreUsuario"]).first()
+        
+        fl = request.files['imagenPerfil']
+        filename = secure_filename(fl.filename)
+        lista = filename.split(".")
+        extension = lista[1]
+        
+        segundos = time.time();
+        milisegundos = str(segundos * 1000 )
+        filename =  milisegundos + '.' + extension
+        url = "imagenes/"+ filename
+        
+        fl.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        
+        if usuario.imgPerfil == "No" :
+            print("no imagen")
+        else :
+            image_eliminar = "./static/"+usuario.imgPerfil;
+            os.remove(image_eliminar)
+        
+
+        usuario.imgPerfil = url
+ 
+        
+        #eliminado imagen antigua del directorio
+        
+        
+        db.session.commit()
+    
+    return redirect(url_for('configuracion'))   
+    
 #--------------------------------------------------------------------
 @app.route('/deleteImage',methods=['POST'] )
 def deleteImage():
