@@ -96,7 +96,8 @@ def dashboard():
         usuario = Usuarios.query.filter_by(nombreUsuario=session["nombreUsuario"]).first()
         print(usuario)
         if busqueda == None or busqueda == "" :
-            imagenes = Imagenes.query.filter_by(id_usuario=session["id"]).filter_by(publico=1)
+            print("entro")
+            imagenes = Imagenes.query.filter_by(publico=True)
             return render_template('dashboard.html',imagenes = imagenes,  usuario = usuario)
         else:
             imagenes = BuscarImagenesDashboard(busqueda)               
@@ -283,6 +284,7 @@ def configuracion():
 
     else:
         return redirect(url_for('index'))
+ #-------------------------------------------------------------------- 
     
 @app.route('/updateConfiguracion', methods=['POST'] )
 def updateConfiguracion():
@@ -303,7 +305,7 @@ def updateConfiguracion():
         return redirect(url_for('index'))    
     
     
- #-------------------------------------------------------------------- 
+
 #--------------------------------------------------------------------
 
 @app.route('/uploadImagePerfil',methods=['POST'] )

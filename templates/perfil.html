@@ -27,7 +27,7 @@
     <div class="row">
       {% for image in imagenes %}
       <div class="col-4 mb-3">
-          <img class="din4 pointer" src=" {{url_for('static', filename=image.url)}} "   data-toggle="modal" data-target="#imagePerfil{{image.id}} " alt="foto"  >
+          <img class="din4 pointer" src="{{url_for('static', filename=image.url)}} "   data-toggle="modal" data-target="#imagePerfil{{image.id}} " alt="foto"  >
       </div>
 
       
@@ -38,7 +38,7 @@
               <div class="modal-content">
                 <div class="modal-body row p-0">
                   <div class="col-7 position-relative overflow-hidden">
-                      <img class="img-grande" src=" {{url_for('static', filename=image.url)}} "  alt="foto">
+                      <img class="img-grande" src="{{url_for('static', filename=image.url)}} "  alt="foto">
                   </div>
                   <div class="col-5 pt-3">
                       <div class="header-perfil d-flex justify-content-between align-items-center">
