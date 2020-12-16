@@ -291,9 +291,11 @@ def updateConfiguracion():
     usuario = Usuarios.query.filter_by(nombreUsuario=session["nombreUsuario"]).first()
     if 'correo' in session: 
         nombre = request.form['nombre']
+        apellido = request.form['apellido']
         correo = request.form['correo']
         fecha = request.form['fecha']
         usuario.nombre = nombre
+        usuario.apellido = apellido
         usuario.correo = correo
         usuario.fecha = fecha
         
