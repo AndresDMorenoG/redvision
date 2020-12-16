@@ -8,6 +8,7 @@ from werkzeug.security import generate_password_hash,check_password_hash
 from werkzeug.datastructures import  FileStorage
 from werkzeug.utils import secure_filename
 import yagmail
+from OpenSSL.crypto import FILETYPE_PEM
 app = Flask(__name__)
 app.secret_key = 'dsadwe'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database/database.db'
@@ -414,6 +415,8 @@ def envioContraseña():
     """
     return ''
 
+if __name__ == '__main__':
+    app.run_server( host='127.0.0.1', port = 443, ssl_context=('micertificado.pem', 'llaveprivada.pem')  )
 
 
 
