@@ -341,13 +341,13 @@ def correoValidacion():
 
 #-------------------------------------------------------------------- 
 
-@app.route('/recuperar/')
+@app.route('/recuperar/<token>', methods=['GET','POST']')
 def cambiarContraseña():
     """ 
         Muestra template para cambiar contraseña
 
     """
-    return render_template('configuracion.html')
+    return render_template('recuperacion.html')
 
 #-------------------------------------------------------------------- 
 
