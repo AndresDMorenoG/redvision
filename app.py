@@ -416,7 +416,7 @@ def envioContraseña():
     return ''
 
 if __name__ == '__main__':
-    app.run_server( host='127.0.0.1', port = 443, ssl_context=('micertificado.pem', 'llaveprivada.pem')  )
+    app.run( host='127.0.0.1', port = 443, ssl_context=('micertificado.pem', 'llaveprivada.pem')  )
 
 
 
