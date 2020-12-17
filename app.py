@@ -44,24 +44,30 @@ def create():
         envia un mensaje de error.
     """
     
-  
-    u = Usuarios.query.filter_by(nombreUsuario=request.form["nombreUsuario"]).first()
-    if u != None:
-        return jsonify({'error': '1'}) 
+    if not utils.isEmailValid(request.form['correo']):
+        return jsonify({'error': '3'})
+    elif not utils.isPasswordValid(request.form['contraseña']):
+        return jsonify({'error': '4'})
+    elif not utils.isUsernameValid():
+        return jsonify({'error': '5'})
     else:
-        u = Usuarios.query.filter_by(correo=request.form["correo"]).first()
+        u = Usuarios.query.filter_by(nombreUsuario=request.form["nombreUsuario"]).first()
         if u != None:
-            return jsonify({'error': '2'})
+            return jsonify({'error': '1'}) 
         else:
-            contraseña_cifrada = generate_password_hash(request.form['contraseña'])
-            usuarios = Usuarios(nombre=request.form['nombre'],apellido=request.form['apellido'],correo=request.form['correo'],contraseña=contraseña_cifrada,fecha=request.form['fecha'],nombreUsuario=request.form['nombreUsuario'], imgPerfil="img/perfil_defecto.jpg",activo=0)
-            db.session.add(usuarios)
-            db.session.commit()
-            nombre = usuarios.nombreUsuario
-            contenido = render_template('correoActivacion.html', nombre = nombre)
-            yag = yagmail.SMTP('redvisionmisiontic@gmail.com', 'Grupo11B') 
-            yag.send(to=usuarios.correo, subject='Confirmación de activación de cuenta',contents=contenido) 
-            return jsonify({'creado': 'usuario creado'})
+            u = Usuarios.query.filter_by(correo=request.form["correo"]).first()
+            if u != None:
+                return jsonify({'error': '2'})
+            else:
+                contraseña_cifrada = generate_password_hash(request.form['contraseña'])
+                usuarios = Usuarios(nombre=request.form['nombre'],apellido=request.form['apellido'],correo=request.form['correo'],contraseña=contraseña_cifrada,fecha=request.form['fecha'],nombreUsuario=request.form['nombreUsuario'], imgPerfil="img/perfil_defecto.jpg",activo=0)
+                db.session.add(usuarios)
+                db.session.commit()
+                nombre = usuarios.nombreUsuario
+                contenido = render_template('correoActivacion.html', nombre = nombre)
+                yag = yagmail.SMTP('redvisionmisiontic@gmail.com', 'Grupo11B') 
+                yag.send(to=usuarios.correo, subject='Confirmación de activación de cuenta',contents=contenido) 
+                return jsonify({'creado': 'usuario creado'})
     
 #-------------------------------------------------------------------- 
 
@@ -77,6 +83,7 @@ def login():
     contraseña = request.form['contraseña']
     if not utils.isEmailValid(correo):
         return jsonify({'error': '4'})
+    
     else :
         usuario = Usuarios.query.filter_by(correo=request.form["correo"]).first()
     
@@ -84,9 +91,9 @@ def login():
             if usuario.activo == False:
                 return jsonify({'error': '3'})
             elif  check_password_hash(usuario.contraseña,request.form['contraseña']):
-                session['id'] = usuario.id
+
                 session['nombreUsuario'] = usuario.nombreUsuario
-                session['correo'] = usuario.correo
+                session['id'] = usuario.id
                 return jsonify({'correcto': 'correcto'})
             else:
                 return jsonify({'error': '2'})
@@ -206,48 +213,50 @@ def updateImage():
     if request.method == 'POST':
         fl = request.files['nuevaImagen']
         filename = secure_filename(fl.filename)
+         
         nombre = request.form['nombre']
         descripcion = request.form['descripcion']
         estado = request.form['estado']
         idImagen = request.form['idImagen']
         direccion = request.form['direccion']
-       
-        
-        publico = True
-        now = datetime.now()
-        
-        imagen = db.session.query(Imagenes).filter_by(id = idImagen).first()
-        imagen.nombre = nombre
-        imagen.descripcion = descripcion
-        imagen.publico = publico
-        
-        if estado == 'publica':
-            publico = True
-        else :
-            publico = False
-        
-        
-        if len(filename)==0 :
-            mensajeError = 'Todos los campos son requeridos'
-            db.session.commit()
+        if  nombre == None or descripcion == None or estado == None or idImagen == None:
             return redirect(url_for('perfil'))
-        else :
+        else:
+            publico = True
+            now = datetime.now()
             
-            lista = filename.split(".")
-            extension = lista[1]
-            segundos = time.time();
-            milisegundos = str(segundos * 1000 )
-            filename =  milisegundos + '.' + extension
-            url = "imagenes/"+ filename
-            imagen.url = url
-            # Guardamos el archivo en el directorio "Archivos PDF"
-            fl.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            image_eliminar = "./static/" +  direccion;
+            imagen = db.session.query(Imagenes).filter_by(id = idImagen).first()
+            imagen.nombre = nombre
+            imagen.descripcion = descripcion
+            imagen.publico = publico
             
-            #eliminado imagen antigua del directorio
-            os.remove(image_eliminar)
-        
-            db.session.commit()
+            if estado == 'publica':
+                publico = True
+            else :
+                publico = False
+            
+            
+            if len(filename)==0 :
+                mensajeError = 'Todos los campos son requeridos'
+                db.session.commit()
+                return redirect(url_for('perfil'))
+            else :
+                
+                lista = filename.split(".")
+                extension = lista[1]
+                segundos = time.time();
+                milisegundos = str(segundos * 1000 )
+                filename =  milisegundos + '.' + extension
+                url = "imagenes/"+ filename
+                imagen.url = url
+                # Guardamos el archivo en el directorio "Archivos PDF"
+                fl.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                image_eliminar = "./static/" +  direccion;
+                
+                #eliminado imagen antigua del directorio
+                os.remove(image_eliminar)
+            
+                db.session.commit()
 
             return redirect(url_for('perfil'))
 
@@ -279,15 +288,16 @@ def BuscarImagenesDashboard(busqueda):
 #-------------------------------------------------------------------- 
 
 
-@app.route('/perfil/')
+@app.route('/perfil/',methods=['GET'] )
 def perfil():
     """ 
         Muestra perfil del usuario
 
     """
-    usuario = Usuarios.query.filter_by(nombreUsuario=session["nombreUsuario"]).first()
+    
     if 'nombreUsuario' in session: 
-        imagenes = Imagenes.query.filter_by(id_usuario=session["id"])
+        usuario = Usuarios.query.filter_by(nombreUsuario=session["nombreUsuario"]).first()
+        imagenes = Imagenes.query.filter_by(id_usuario=session['id'])
         npublicaciones = 0
         for i in imagenes:
             npublicaciones +=1
@@ -301,9 +311,9 @@ def perfil():
 @app.route('/configuracion')
 def configuracion():
     
-    usuario = Usuarios.query.filter_by(nombreUsuario=session["nombreUsuario"]).first()
-    print(usuario)
-    if 'correo' in session: 
+
+    if 'nombreUsuario' in session:
+        usuario = Usuarios.query.filter_by(nombreUsuario=session["nombreUsuario"]).first()
         return render_template('configuracion.html', usuario=usuario)
 
     else:
@@ -312,8 +322,9 @@ def configuracion():
     
 @app.route('/updateConfiguracion', methods=['POST'] )
 def updateConfiguracion():
-    usuario = Usuarios.query.filter_by(nombreUsuario=session["nombreUsuario"]).first()
-    if 'correo' in session: 
+    
+    if 'nombreUsuario' in session: 
+        usuario = Usuarios.query.filter_by(nombreUsuario=session["nombreUsuario"]).first()
         nombre = request.form['nombre']
         apellido = request.form['apellido']
         correo = request.form['correo']
@@ -342,10 +353,7 @@ def updateConfiguracion():
 
 @app.route('/uploadImagePerfil',methods=['POST'] )
 def uploadImagePerfil():
-    
-    """ 
-        Actualiza imagen de perfil del usuario
-    """
+  
     if request.method == 'POST':
         
         usuario = Usuarios.query.filter_by(nombreUsuario=session["nombreUsuario"]).first()

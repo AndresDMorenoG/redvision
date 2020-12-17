@@ -114,12 +114,13 @@
               <form action="/login" method="POST" id="formlogin" >
                 <div class="form-group">
                   <input
-                    type="text"
+                    type="email"
                     placeholder="Correo"
-                    class="form-control "
+                    class="form-control"
                     id="correo"
                     aria-describedby="emailHelp"
                     name="correo"
+                    required
                   />
                 </div>
 
@@ -231,6 +232,8 @@
                     class="form-control"
                     id="contraseñar"
                     name="contraseña"
+                    required
+                    minlength = "9"
                   />
                 </div>
                 <div class="form-group mt-3">

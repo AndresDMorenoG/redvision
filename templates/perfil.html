@@ -66,8 +66,12 @@
                               <h5>{{image.nombre}}</h5>
                               <h6 class="mt-3">Descripcion</h6>
                               <p style="font-size: 14px;" class="pr-4 text-justify">{{image.descripcion}}</p>
-                              
+                              {% if image.publico == 0%}
                               <p style="font-size: 14px; color:#6647FC;">Imagen Publica</p>
+                              {% else %}
+                              <p style="font-size: 14px; color:#6647FC;">Imagen Privada</p>
+                              {% endif %}
+                              
                               <p style="font-size: 14px;" class="text-muted">Publicación: {{image.fecha}}</p>
                           </div>
                           <div class="col-12 text-right">
@@ -110,10 +114,10 @@
                           <div class="col-12 pt-3">
                             <div style="margin-right: 3rem;">
                               <div class="form-group">
-                                <input type="text" class="form-control" placeholder="Nombre Imagen" id="nombreImagen" name="nombre" aria-describedby="emailHelp" value="{{image.nombre}}">
+                                <input type="text" class="form-control" placeholder="Nombre Imagen" id="nombreImagen" name="nombre" aria-describedby="emailHelp" value="{{image.nombre}}" required>
                               </div>
                               <div class="form-group">
-                                <textarea class="form-control text-left" placeholder="Descripcion" id="descripcionImagen" name="descripcion" rows="5">{{image.descripcion}}</textarea>
+                                <textarea class="form-control text-left" placeholder="Descripcion" id="descripcionImagen" name="descripcion" rows="5" required>{{image.descripcion}}</textarea>
                               </div>
                             </div>
                           </div>

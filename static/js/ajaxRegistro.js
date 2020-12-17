@@ -26,6 +26,27 @@ $(document).ready(function(){
                 $('#usuarior').val("");
                 
             }
+            else if(data.error == "3"){
+                $('#errorRegistro').html(`<div class="alert alert-danger" id="borrar" role="alert">
+                El correo es invalido
+                </div>`);
+                $('#correor').val("");
+                
+            }
+            else if(data.error == "4"){
+                $('#errorRegistro').html(`<div class="alert alert-danger" id="borrar" role="alert">
+                La contraseña debe contenir al menos una minúscula, una mayúscula, un número y 8 caracteres
+                </div>`);
+                $('#contraseñar').val("");
+                
+            }
+            else if(data.error == "5"){
+                $('#errorRegistro').html(`<div class="alert alert-danger" id="borrar" role="alert">
+                "El usuario debe ser alfanumerico o incluir solo '.','_','-'
+                </div>`);
+                $('#usuarior').val("");
+                
+            }
             
             else{
               
