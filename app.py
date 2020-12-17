@@ -16,7 +16,7 @@ app.secret_key = 'dsadwe'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database/database.db'
 app.config['UPLOAD_FOLDER'] = './static/imagenes'
 db = SQLAlchemy(app)
-from modelos import Usuarios,Imagenes
+from modelos import *
 import utils
 
 
@@ -69,9 +69,9 @@ def create():
                     db.session.add(usuarios)
                     db.session.commit()
                     nombre = usuarios.nombreUsuario
-                    #contenido = render_template('correoActivacion.html', nombre = nombre)
-                    #yag = yagmail.SMTP('redvisionmisiontic@gmail.com', 'Grupo11B') 
-                    #yag.send(to=usuarios.correo, subject='Confirmación de activación de cuenta',contents=contenido) 
+                    contenido = render_template('correoActivacion.html', nombre = nombre)
+                    yag = yagmail.SMTP('redvisionmisiontic@gmail.com', 'Grupo11B') 
+                    yag.send(to=usuarios.correo, subject='Confirmación de activación de cuenta',contents=contenido) 
                     return jsonify({'creado': 'usuario creado'})
                 else:
                     return jsonify({'error': '6'})
