@@ -18,7 +18,7 @@ $(document).ready(function(){
                 </div>`);
                 $('#contraseña').val("")
                 $('#correo').val("")
-                $('.alert').css("transition", "all 500ms ease");
+                
                
             }
             else if(data.error == "2"){
@@ -27,7 +27,17 @@ $(document).ready(function(){
                 Contraseña incorrecta
                 </div>`);
                 $('#contraseña').val("")
-                $('.alert').css("transition", "all 500ms ease");
+                
+                
+            }
+            else if(data.error == "3"){
+
+                $('#error').html(`<div class="alert alert-danger" id="borrar" role="alert">
+                Usuario no activo
+                </div>`);
+                $('#contraseña').val("")
+                $('#correo').val("")
+                
                 
             }
             

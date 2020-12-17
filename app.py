@@ -53,14 +53,13 @@ def create():
             return jsonify({'error': '2'})
         else:
             contraseña_cifrada = generate_password_hash(request.form['contraseña'])
-            usuarios = Usuarios(nombre=request.form['nombre'],apellido=request.form['apellido'],correo=request.form['correo'],contraseña=contraseña_cifrada,fecha=request.form['fecha'],nombreUsuario=request.form['nombreUsuario'], imgPerfil="img/perfil_defecto.jpg")
+            usuarios = Usuarios(nombre=request.form['nombre'],apellido=request.form['apellido'],correo=request.form['correo'],contraseña=contraseña_cifrada,fecha=request.form['fecha'],nombreUsuario=request.form['nombreUsuario'], imgPerfil="img/perfil_defecto.jpg",activo=0)
             db.session.add(usuarios)
             db.session.commit()
             nombre = usuarios.nombreUsuario
             contenido = render_template('correoActivacion.html', nombre = nombre)
             yag = yagmail.SMTP('redvisionmisiontic@gmail.com', 'Grupo11B') 
             yag.send(to=usuarios.correo, subject='Confirmación de activación de cuenta',contents=contenido) 
-            correoValidacion(nombre)
             return jsonify({'creado': 'usuario creado'})
     
 #-------------------------------------------------------------------- 
@@ -77,7 +76,9 @@ def login():
     usuario = Usuarios.query.filter_by(correo=request.form["correo"]).first()
   
     if usuario != None:
-        if  check_password_hash(usuario.contraseña,request.form['contraseña']):
+        if usuario.activo == False:
+            return jsonify({'error': '3'})
+        elif  check_password_hash(usuario.contraseña,request.form['contraseña']):
             session['id'] = usuario.id
             session['nombreUsuario'] = usuario.nombreUsuario
             session['correo'] = usuario.correo
