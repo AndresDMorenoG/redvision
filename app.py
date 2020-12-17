@@ -2,6 +2,7 @@
 import os 
 import time
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 from flask import Flask, request,render_template,redirect,url_for,session,flash,jsonify,send_file
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash,check_password_hash
@@ -48,9 +49,10 @@ def create():
         return jsonify({'error': '3'})
     elif not utils.isPasswordValid(request.form['contraseña']):
         return jsonify({'error': '4'})
-    elif not utils.isUsernameValid():
+    elif not utils.isUsernameValid(request.form["nombreUsuario"]):
         return jsonify({'error': '5'})
     else:
+        
         u = Usuarios.query.filter_by(nombreUsuario=request.form["nombreUsuario"]).first()
         if u != None:
             return jsonify({'error': '1'}) 
@@ -59,18 +61,30 @@ def create():
             if u != None:
                 return jsonify({'error': '2'})
             else:
-                contraseña_cifrada = generate_password_hash(request.form['contraseña'])
-                usuarios = Usuarios(nombre=request.form['nombre'],apellido=request.form['apellido'],correo=request.form['correo'],contraseña=contraseña_cifrada,fecha=request.form['fecha'],nombreUsuario=request.form['nombreUsuario'], imgPerfil="img/perfil_defecto.jpg",activo=0)
-                db.session.add(usuarios)
-                db.session.commit()
-                nombre = usuarios.nombreUsuario
-                contenido = render_template('correoActivacion.html', nombre = nombre)
-                yag = yagmail.SMTP('redvisionmisiontic@gmail.com', 'Grupo11B') 
-                yag.send(to=usuarios.correo, subject='Confirmación de activación de cuenta',contents=contenido) 
-                return jsonify({'creado': 'usuario creado'})
+                if mayoredad(request.form['fecha']) == True:
+                    
+                    contraseña_cifrada = generate_password_hash(request.form['contraseña'])
+                    usuarios = Usuarios(nombre=request.form['nombre'],apellido=request.form['apellido'],correo=request.form['correo'],contraseña=contraseña_cifrada,fecha=request.form['fecha'],nombreUsuario=request.form['nombreUsuario'], imgPerfil="img/perfil_defecto.jpg",activo=0)
+                    db.session.add(usuarios)
+                    db.session.commit()
+                    nombre = usuarios.nombreUsuario
+                    #contenido = render_template('correoActivacion.html', nombre = nombre)
+                    #yag = yagmail.SMTP('redvisionmisiontic@gmail.com', 'Grupo11B') 
+                    #yag.send(to=usuarios.correo, subject='Confirmación de activación de cuenta',contents=contenido) 
+                    return jsonify({'creado': 'usuario creado'})
+                else:
+                    return jsonify({'error': '6'})
     
 #-------------------------------------------------------------------- 
-
+def mayoredad(fecha):
+    fechaActual = datetime.now()
+    fechaNacimiento = datetime.strptime(fecha, '%Y-%m-%d')
+    diff = relativedelta(fechaActual, fechaNacimiento)
+    años = diff.years
+    if años >= 18:
+        return True
+    else:
+        return False
 @app.route('/login',methods=['POST'])
 def login():  
     """ Se encarga de crear la sessiones si existe el usuario.
@@ -170,7 +184,7 @@ def uploadImg():
         
         if len(filename) == 0 or len(nombre) == 0 or len(descripcion) == 0 or len(estado) == 0 :
             mensajeError = 'Todos los campos son requeridos'
-            return redirect(url_for('perfil'), mensajeError=mensajeError)
+            return redirect(url_for('perfil'))
         else :
             lista = filename.split(".")
             extension = lista[1] 

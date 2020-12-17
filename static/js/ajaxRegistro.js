@@ -42,9 +42,16 @@ $(document).ready(function(){
             }
             else if(data.error == "5"){
                 $('#errorRegistro').html(`<div class="alert alert-danger" id="borrar" role="alert">
-                "El usuario debe ser alfanumerico o incluir solo '.','_','-'
+                El usuario debe ser alfanumerico o incluir solo '.','_','-'
                 </div>`);
                 $('#usuarior').val("");
+                
+            }
+            else if(data.error == "6"){
+                $('#errorRegistro').html(`<div class="alert alert-danger" id="borrar" role="alert">
+                 Debes ser mayor de edad para registrarte
+                </div>`);
+    
                 
             }
             
