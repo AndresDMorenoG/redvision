@@ -8,6 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash,check_password_hash
 from werkzeug.datastructures import  FileStorage
 from werkzeug.utils import secure_filename
+from itsdangerous import URLSafeSerializer
 import yagmail
 from OpenSSL.crypto import FILETYPE_PEM
 app = Flask(__name__)
@@ -426,6 +427,7 @@ def deleteImage():
         return redirect(url_for('index'))
 #-------------------------------------------------------------------- 
 
+
 @app.route('/CorreoRecuperar',methods=['POST'])
 def correoRecuperacion():
     """ 
@@ -434,14 +436,17 @@ def correoRecuperacion():
     usuario = Usuarios.query.filter_by(correo=request.form["recuperarcorreo"]).first()
     if usuario != None:
         email=request.form["recuperarcorreo"]
-        token = usuario.get_reset_token()
-        contenido = render_template('emailRecuperar.html', nombre = usuario.nombreUsuario, token=token )
+        s = URLSafeSerializer(app.secret_key)
+        token = s.dumps([usuario.id])
+        nombre = usuario.nombreUsuario
+        contenido = render_template('emailRecuperar.html', nombre = nombre, token=token )
         yag = yagmail.SMTP('redvisionmisiontic@gmail.com', 'Grupo11B') 
         yag.send(to=email, subject="Recuperar contraseña",contents=contenido)
         return redirect(url_for('index'))
     else:  
         print('error')        
         return jsonify({'error': '1'})
+
 
 #-------------------------------------------------------------------- 
 
@@ -460,22 +465,37 @@ def correoValidacion(nombre):
 #-------------------------------------------------------------------- 
 
 @app.route('/recuperar/<token>', methods=['GET','POST'])
-def cambiarContraseña(token):
+def cambiarContrasena(token):
     """ 
         Muestra template para cambiar contraseña
-
     """
-    return render_template('recuperacion.html')
+    s = URLSafeSerializer(app.secret_key)
+    id_token = s.loads(token)
+    id = int(id_token[0])
+    usuario = Usuarios.query.filter_by(id = id).first()
+
+    if request.method == 'POST':    
+        if utils.isPasswordValid(request.form["password"]):
+            envioContrasena(usuario.correo)
+            return redirect(url_for('index'))
+        else:
+            flash('La contraseña debe contenir al menos una minúscula, una mayúscula, un número y 8 caracteres')
+            return render_template('recuperacion.html')
+    else:
+        return render_template('recuperacion.html')
 
 #-------------------------------------------------------------------- 
 
-@app.route('/cambiocontraseña/')
-def envioContraseña():
+def envioContrasena(correo):
     """ 
         Guarda la nueva contraseña
-
     """
-    return ''
+    usuario = Usuarios.query.filter_by(correo = correo).first()
+    if request.method == 'POST':
+        if usuario != None:
+            usuario.contraseña = generate_password_hash(request.form["password"])
+            db.session.commit()
+            
 
 if __name__ == '__main__':
     app.run( host='127.0.0.1', port = 443, ssl_context=('micertificado.pem', 'llaveprivada.pem')  )
