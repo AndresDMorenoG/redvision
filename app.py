@@ -15,7 +15,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database/database.db'
 app.config['UPLOAD_FOLDER'] = './static/imagenes'
 db = SQLAlchemy(app)
 from modelos import Usuarios,Imagenes
-
+import utils
 
 
 #-------------------------------------------------------------------- 
@@ -318,8 +318,12 @@ def correoRecuperacion():
         Envia Correo de recuperacion
     """
     usuario = Usuarios.query.filter_by(correo=request.form["recuperarcorreo"]).first()
+
     if usuario != None:
         email=request.form["recuperarcorreo"]
+        if not utils.isEmailValid(email):
+            error = "Correo Invalido"
+            flash( error )
         s = URLSafeSerializer(app.secret_key)
         token = s.dumps([usuario.id])
         nombre = usuario.nombreUsuario
@@ -327,9 +331,6 @@ def correoRecuperacion():
         yag = yagmail.SMTP('redvisionmisiontic@gmail.com', 'Grupo11B') 
         yag.send(to=email, subject="Recuperar contraseña",contents=contenido)
         return redirect(url_for('index'))
-    else:  
-        print('error')        
-        return jsonify({'error': '1'})
 
 #-------------------------------------------------------------------- 
 
@@ -358,6 +359,7 @@ def cambiarContrasena(token):
     id = int(id_token[0])
     usuario = Usuarios.query.filter_by(id = id).first()
     envioContrasena(usuario.correo)
+        
             
     return render_template('recuperacion.html')
 
@@ -371,9 +373,14 @@ def envioContrasena(correo):
     usuario = Usuarios.query.filter_by(correo = correo).first()
     if request.method == 'POST':
         if usuario != None:
-            usuario.contraseña = generate_password_hash(request.form["password"])
-            db.session.commit()
-            return redirect(url_for('index'))
+            if not utils.isPasswordValid(request.form["password"]):
+                error = 'contraseña debe contenir al menos una minúscula, una mayúscula, un número y 8 caracteres'
+                flash( error )
+            else:
+                usuario.contraseña = generate_password_hash(request.form["password"])
+                db.session.commit()
+            
+    
 
 
     
