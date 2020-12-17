@@ -55,8 +55,12 @@ def create():
             contraseña_cifrada = generate_password_hash(request.form['contraseña'])
             usuarios = Usuarios(nombre=request.form['nombre'],apellido=request.form['apellido'],correo=request.form['correo'],contraseña=contraseña_cifrada,fecha=request.form['fecha'],nombreUsuario=request.form['nombreUsuario'], imgPerfil="img/perfil_defecto.jpg")
             db.session.add(usuarios)
-            db.session.commit() 
-            correoValidacion(usuarios.correo)
+            db.session.commit()
+            nombre = usuarios.nombreUsuario
+            contenido = render_template('correoActivacion.html', nombre = nombre)
+            yag = yagmail.SMTP('redvisionmisiontic@gmail.com', 'Grupo11B') 
+            yag.send(to=usuarios.correo, subject='Confirmación de activación de cuenta',contents=contenido) 
+            correoValidacion(nombre)
             return jsonify({'creado': 'usuario creado'})
     
 #-------------------------------------------------------------------- 
@@ -395,23 +399,22 @@ def correoRecuperacion():
 
 #-------------------------------------------------------------------- 
 
-@app.route('/CorreoValidar/',methods=['POST'])
-def correoValidacion():
+@app.route('/CorreoValidar/<nombre>',methods=['GET','POST'])
+def correoValidacion(nombre):
     """ 
         Envia Correo de validacion del usuario
 
     """
-    usuario = Usuarios.query.filter_by(correo=email).first()
-    contenido = render_template('correoActivacion.html', nombre = usuario.nombreUsuario )
-    yag = yagmail.SMTP('redvisionmisiontic@gmail.com', 'Grupo11B') 
-    yag.send(to=email, subject='Confirmación de activación de cuenta',contents=contenido)
-    usuario.activo = True
-    db.session.commit()
+    usuario = Usuarios.query.filter_by(nombreUsuario = nombre).first()
+    if usuario != None:
+        usuario.activo = True
+        db.session.commit()
+        return redirect(url_for('index'))
 
 #-------------------------------------------------------------------- 
 
-@app.route('/recuperar/<token>', methods=['GET','POST']')
-def cambiarContraseña():
+@app.route('/recuperar/<token>', methods=['GET','POST'])
+def cambiarContraseña(token):
     """ 
         Muestra template para cambiar contraseña
 
