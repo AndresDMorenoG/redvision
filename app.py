@@ -15,6 +15,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database/database.db'
 app.config['UPLOAD_FOLDER'] = './static/imagenes'
 db = SQLAlchemy(app)
 from modelos import Usuarios,Imagenes
+import utils
 
 
 
@@ -72,6 +73,8 @@ def login():
         si coinciden envia un mensaje de 'correcto', si no
         envia un mensaje de error.
     """
+    correo = request.form['correo']
+    contraseña = request.form['contraseña']
     
     usuario = Usuarios.query.filter_by(correo=request.form["correo"]).first()
   
@@ -137,49 +140,57 @@ def uploadImg():
         # obtenemos el archivo del input "archivo"
         f = request.files['imagen']
         filename = secure_filename(f.filename)
-        filename = "ejemploe2.jpg"
-        lista = filename.split(".")
-        extension = lista[1]
-                
-        segundos = time.time();
-        milisegundos = str(segundos * 1000 )
-        filename =  milisegundos + '.' + extension
-        
-        
-        
-        # Guardamos el archivo en el directorio "Archivos PDF"
-        f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        
+
         
         #Obteniendo datos del formulario
-        
         nombre = request.form['nombre']
         descripcion = request.form['descripcion']
         estado = request.form['estado']
         id_usuario = session['id']
-        url = "imagenes/"+ filename
         publico = True
         now = datetime.now()
-        
         fecha = str(now.year )+ "-" + str(now.month) + "-" + str(now.day)
         
-        
         if estado == 'publica':
-            publico = True
+                publico = True
         else :
             publico = False
+        
+        
+        print(len(filename), filename)
+        
+        if len(filename) == 0 or len(nombre) == 0 or len(descripcion) == 0 or len(estado) == 0 :
+            mensajeError = 'Todos los campos son requeridos'
+            return redirect(url_for('perfil'), mensajeError=mensajeError)
+        else :
+            lista = filename.split(".")
+            extension = lista[1] 
+            segundos = time.time();
+            milisegundos = str(segundos * 1000 )
+            filename =  milisegundos + '.' + extension
+            url = "imagenes/"+ filename
+            
+            imagenes = Imagenes(id_usuario=id_usuario, nombre = nombre, descripcion = descripcion, url = url, publico = publico, fecha = fecha)
+            
+             # Guardamos el archivo en el directorio "Archivos PDF"
+            f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            
+            db.session.add(imagenes)
+            db.session.commit()
+            
+            # Retornamos una respuesta satisfactoria
+            return redirect(url_for('perfil'))
+                
+        
+        
+
+        
+        
+        
+
             
        
         
-        
-        imagenes = Imagenes(id_usuario=id_usuario, nombre = nombre, descripcion = descripcion, url = url, publico = publico, fecha = fecha)
-        
-        db.session.add(imagenes)
-        db.session.commit()
-       
-        
-        # Retornamos una respuesta satisfactoria
-        return redirect(url_for('perfil'))
      
 #-------------------------------------------------------------------- 
 
@@ -191,7 +202,6 @@ def updateImage():
         Actualiza imagenes del usuario
     """
     if request.method == 'POST':
-        
         fl = request.files['nuevaImagen']
         filename = secure_filename(fl.filename)
         nombre = request.form['nombre']
@@ -203,20 +213,24 @@ def updateImage():
         
         publico = True
         now = datetime.now()
-
-    
-        if estado == 'publica':
-                publico = True
-        else :
-            publico = False
         
         imagen = db.session.query(Imagenes).filter_by(id = idImagen).first()
         imagen.nombre = nombre
         imagen.descripcion = descripcion
         imagen.publico = publico
         
-        if filename != "":
-
+        if estado == 'publica':
+            publico = True
+        else :
+            publico = False
+        
+        
+        if len(filename)==0 :
+            mensajeError = 'Todos los campos son requeridos'
+            db.session.commit()
+            return redirect(url_for('perfil'))
+        else :
+            
             lista = filename.split(".")
             extension = lista[1]
             segundos = time.time();
@@ -231,9 +245,9 @@ def updateImage():
             #eliminado imagen antigua del directorio
             os.remove(image_eliminar)
         
-        db.session.commit()
+            db.session.commit()
 
-    return redirect(url_for('perfil'))
+            return redirect(url_for('perfil'))
 
 
 #-------------------------------------------------------------------- 
@@ -284,6 +298,7 @@ def perfil():
 
 @app.route('/configuracion')
 def configuracion():
+    
     usuario = Usuarios.query.filter_by(nombreUsuario=session["nombreUsuario"]).first()
     print(usuario)
     if 'correo' in session: 
@@ -305,10 +320,16 @@ def updateConfiguracion():
         usuario.apellido = apellido
         usuario.correo = correo
         usuario.fecha = fecha
+        mensajeError = ""
         
-        db.session.commit()
-        
-        return redirect(url_for('configuracion'))
+        if len(nombre)==0 or len(apellido)==0 or len(correo)==0 or len(fecha)==0 :
+            mensajeError = 'Todos los campos son requeridos'
+            return redirect(url_for('configuracion', mensajeError = mensajeError))
+        else :
+            
+            db.session.commit()
+            
+            return redirect(url_for('configuracion'))
    
     else:
         return redirect(url_for('index'))    
