@@ -75,22 +75,24 @@ def login():
     """
     correo = request.form['correo']
     contraseña = request.form['contraseña']
+    if not utils.isEmailValid(correo):
+        return jsonify({'error': '4'})
+    else :
+        usuario = Usuarios.query.filter_by(correo=request.form["correo"]).first()
     
-    usuario = Usuarios.query.filter_by(correo=request.form["correo"]).first()
-  
-    if usuario != None:
-        if usuario.activo == False:
-            return jsonify({'error': '3'})
-        elif  check_password_hash(usuario.contraseña,request.form['contraseña']):
-            session['id'] = usuario.id
-            session['nombreUsuario'] = usuario.nombreUsuario
-            session['correo'] = usuario.correo
-            return jsonify({'correcto': 'correcto'})
-        else:
-            return jsonify({'error': '2'})
-    else:  
-      
-        return jsonify({'error': '1'})
+        if usuario != None:
+            if usuario.activo == False:
+                return jsonify({'error': '3'})
+            elif  check_password_hash(usuario.contraseña,request.form['contraseña']):
+                session['id'] = usuario.id
+                session['nombreUsuario'] = usuario.nombreUsuario
+                session['correo'] = usuario.correo
+                return jsonify({'correcto': 'correcto'})
+            else:
+                return jsonify({'error': '2'})
+        else:  
+        
+            return jsonify({'error': '1'})
    
 #-------------------------------------------------------------------- 
 

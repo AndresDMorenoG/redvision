@@ -40,7 +40,16 @@ $(document).ready(function(){
                 
                 
             }
-            
+            else if(data.error == "4"){
+
+                $('#error').html(`<div class="alert alert-danger" id="borrar" role="alert">
+                Correo invalido
+                </div>`);
+                $('#contraseña').val("")
+                $('#correo').val("")
+                
+                
+            }
             else{
                 $(location).attr('href', '/dashboard')
             }
