@@ -7,6 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash,check_password_hash
 from werkzeug.datastructures import  FileStorage
 from werkzeug.utils import secure_filename
+from itsdangerous import URLSafeSerializer
 import yagmail
 app = Flask(__name__)
 app.secret_key = 'dsadwe'
@@ -319,8 +320,10 @@ def correoRecuperacion():
     usuario = Usuarios.query.filter_by(correo=request.form["recuperarcorreo"]).first()
     if usuario != None:
         email=request.form["recuperarcorreo"]
-        token = usuario.get_reset_token()
-        contenido = render_template('emailRecuperar.html', nombre = usuario.nombreUsuario, token=token )
+        s = URLSafeSerializer(app.secret_key)
+        token = s.dumps([usuario.id])
+        nombre = usuario.nombreUsuario
+        contenido = render_template('emailRecuperar.html', nombre = nombre, token=token )
         yag = yagmail.SMTP('redvisionmisiontic@gmail.com', 'Grupo11B') 
         yag.send(to=email, subject="Recuperar contraseña",contents=contenido)
         return redirect(url_for('index'))
@@ -345,22 +348,38 @@ def correoValidacion(nombre):
 #-------------------------------------------------------------------- 
 
 @app.route('/recuperar/<token>', methods=['GET','POST'])
-def cambiarContraseña(token):
+def cambiarContrasena(token):
     """ 
         Muestra template para cambiar contraseña
 
     """
+    s = URLSafeSerializer(app.secret_key)
+    id_token = s.loads(token)
+    id = int(id_token[0])
+    usuario = Usuarios.query.filter_by(id = id).first()
+    envioContrasena(usuario.correo)
+            
     return render_template('recuperacion.html')
 
 #-------------------------------------------------------------------- 
-
-@app.route('/cambiocontraseña/')
-def envioContraseña():
+@app.route('/envioContrasena', methods=['POST'])
+def envioContrasena(correo):
     """ 
         Guarda la nueva contraseña
 
     """
-    return ''
+    usuario = Usuarios.query.filter_by(correo = correo).first()
+    if request.method == 'POST':
+        if usuario != None:
+            usuario.contraseña = generate_password_hash(request.form["password"])
+            db.session.commit()
+            return redirect(url_for('index'))
+
+
+    
+
+        
+   
 
 
 
