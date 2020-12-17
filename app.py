@@ -380,6 +380,7 @@ def envioContrasena(correo):
                 usuario.contraseña = generate_password_hash(request.form["password"])
                 db.session.commit()
             
+            
     
 
 
