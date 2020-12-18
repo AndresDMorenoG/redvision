@@ -37,15 +37,23 @@
               <label for="exampleInputEmail2">Apellido</label>
               <input type="text" class="form-control" value="{{usuario.apellido}}" name="apellido" id="exampleInputEmail2" aria-describedby="emailHelp" required>
             </div>
-            <div class="form-group">
-              <label for="exampleInputEmail1">Correo</label>
-              <input type="email" class="form-control" value="{{usuario.correo}}" name="correo" id="exampleInputEmail1" aria-describedby="emailHelp" required> 
-            </div>
+            
             <div class="form-group">
               <label for="exampleInputEmail1">fecha de nacimiento</label>
               <input type="date" class="form-control"  value="{{usuario.fecha}}" name="fecha" aria-describedby="emailHelp" required>
             </div>
+            {% with messages = get_flashed_messages() %}
+                      
+                        {% for message in messages %}
+                        <div class="alert alert-danger" id="borrar" role="alert">
+                          {{ message }}
+                          </div>
+                          
+                        {% endfor %}
+                       
+                      {% endwith %}
             <div class="text-center">
+
               <button type="submit" class="btn  btn-ini" >Actualizar</button>
             </div>
           </form>

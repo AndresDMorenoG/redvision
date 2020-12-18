@@ -1,5 +1,6 @@
 
 import os 
+from modelos import *
 import time
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -15,8 +16,9 @@ app = Flask(__name__)
 app.secret_key = 'dsadwe'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database/database.db'
 app.config['UPLOAD_FOLDER'] = './static/imagenes'
+
 db = SQLAlchemy(app)
-from modelos import *
+
 import utils
 
 
@@ -341,18 +343,20 @@ def updateConfiguracion():
     if 'nombreUsuario' in session: 
         usuario = Usuarios.query.filter_by(nombreUsuario=session["nombreUsuario"]).first()
         nombre = request.form['nombre']
-        apellido = request.form['apellido']
-        correo = request.form['correo']
+        apellido = request.form['apellido']  
         fecha = request.form['fecha']
         usuario.nombre = nombre
         usuario.apellido = apellido
-        usuario.correo = correo
         usuario.fecha = fecha
         mensajeError = ""
         
-        if len(nombre)==0 or len(apellido)==0 or len(correo)==0 or len(fecha)==0 :
-            mensajeError = 'Todos los campos son requeridos'
-            return redirect(url_for('configuracion', mensajeError = mensajeError))
+        if len(nombre)==0 or len(apellido)==0 or len(fecha)==0 :
+            
+            
+            return redirect(url_for('configuracion'))
+        elif mayoredad(fecha) == False:
+            return redirect(url_for('configuracion'))
+    
         else :
             
             db.session.commit()
@@ -395,7 +399,7 @@ def uploadImagePerfil():
             usuario.imgPerfil = url
  
         
-        |#eliminado imagen antigua del directorio
+            #eliminado imagen antigua del directorio
         
         
             db.session.commit()
