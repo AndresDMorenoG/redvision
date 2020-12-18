@@ -392,13 +392,13 @@ def uploadImagePerfil():
             os.remove(image_eliminar)
         
 
-        usuario.imgPerfil = url
+            usuario.imgPerfil = url
  
         
-        #eliminado imagen antigua del directorio
+        |#eliminado imagen antigua del directorio
         
         
-        db.session.commit()
+            db.session.commit()
     
     return redirect(url_for('configuracion'))   
     
