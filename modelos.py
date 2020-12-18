@@ -1,4 +1,4 @@
-from app import db, app
+from app import db
 from datetime import datetime
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 #-------------------------------------------------------------------- 
